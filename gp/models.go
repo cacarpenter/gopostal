@@ -26,10 +26,22 @@ type Request struct {
 	Header []Header `json:"header"`
 }
 
-type Item struct {
-	Name string `json:"name"`
+type RequestItem struct {
+	Name                    string                  `json:"name"`
+	Request                 Request                 `json:"request`
+	ProtocolProfileBehavior ProtocolProfileBehavior `json:"protocolProfileBehavior"`
+}
+
+type ProtocolProfileBehavior struct {
+	DisableBodyPruning bool `json:"disableBodyPruning"`
+}
+
+type CollItem struct {
+	Name string        `json:"name"`
+	Item []RequestItem `json:"item"`
 }
 
 type PostmanCollection struct {
 	Info CollectionInfo `json:"info"`
+	Item []CollItem     `json:"item"`
 }
