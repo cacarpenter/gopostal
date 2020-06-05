@@ -1,15 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/cacarpenter/gopostal/gp"
+	"github.com/cacarpenter/gopostal/postman"
 	"github.com/cacarpenter/gopostal/util"
-	"io/ioutil"
 	"os"
 )
-
-const SCHEMA_2_1_0 = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 
 func main() {
 	if len(os.Args) < 2 {
@@ -25,33 +21,23 @@ func main() {
 	switch cmd {
 	case "diff":
 		runDiff(subargs)
+	case "print", "show":
+		printColl(subargs)
 	default:
 		fmt.Println("Unknown command", cmd)
 	}
-	/*
-
-		fmt.Println("Name:", coll.Info.Name)
-		for _, i := range coll.Item {
-			fmt.Println(i.Name)
-			for _, i2 := range i.Item {
-				fmt.Println("\t -", i2.Name)
-				fmt.Println("\t *", i2.Request)
-			}
-		}
-	*/
 }
 
-func parseCollection(filename string) (*gp.PostmanCollection, error) {
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
+func printColl(subargs []string) {
+	if len(subargs) < 1 {
+		fmt.Println("gopostal print filename")
+		return
 	}
-	var coll gp.PostmanCollection
-	err = json.Unmarshal(data, &coll)
+	coll, err := postman.Parse(subargs[0])
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	return &coll, nil
+	postman.Print(coll)
 }
 
 func runDiff(subargs []string) {
@@ -59,11 +45,11 @@ func runDiff(subargs []string) {
 		fmt.Println("gopostal diff filename1 filename2")
 		return
 	}
-	coll1, err := parseCollection(subargs[0])
+	coll1, err := postman.Parse(subargs[0])
 	if err != nil {
 		panic(err)
 	}
-	coll2, err := parseCollection(subargs[1])
+	coll2, err := postman.Parse(subargs[1])
 	if err != nil {
 		panic(err)
 	}
@@ -73,18 +59,18 @@ func runDiff(subargs []string) {
 	blank := util.StringOf(' ', tablelength)
 	space := "|        |"
 	max := 0
-	if len(coll1.Item) > len(coll2.Item) {
-		max = len(coll1.Item)
+	if len(coll1.Items) > len(coll2.Items) {
+		max = len(coll1.Items)
 	} else {
-		max = len(coll2.Item)
+		max = len(coll2.Items)
 	}
 	fmt.Println(hline, space, hline)
 	fmt.Println(subargs[0], space, subargs[1])
 	fmt.Println(hline, space, hline)
 	for i := 0; i < max; i++ {
 		iname1 := blank
-		if len(coll1.Item) > i {
-			iname1 = util.Pad(coll1.Item[i].Name, tablelength)
+		if len(coll1.Items) > i {
+			iname1 = util.Pad(coll1.Items[i].Name, tablelength)
 			/*
 				if len(coll1.Item[i].Name) < tablelength {
 					fill := util.StringOf(' ', len(coll1.Item[i].Name)-tablelength)
@@ -95,11 +81,11 @@ func runDiff(subargs []string) {
 			*/
 		}
 		iname2 := blank
-		if len(coll2.Item) > i {
-			iname2 = util.Pad(coll2.Item[i].Name, tablelength)
+		if len(coll2.Items) > i {
+			iname2 = util.Pad(coll2.Items[i].Name, tablelength)
 		}
 		fmt.Println(iname1, space, iname2)
 	}
 
-	fmt.Println(len(coll1.Item), " vs ", len(coll2.Item))
+	fmt.Println(len(coll1.Items), " vs ", len(coll2.Items))
 }
