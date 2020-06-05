@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/cacarpenter/gopostal/cui"
 	"github.com/cacarpenter/gopostal/postman"
 	"github.com/cacarpenter/gopostal/util"
 	"os"
@@ -9,7 +10,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("gopostal command")
+		cui.Run()
 		return
 	}
 
@@ -23,6 +24,8 @@ func main() {
 		runDiff(subargs)
 	case "print", "show":
 		printColl(subargs)
+	case "open":
+		cui.Open(subargs[0])
 	default:
 		fmt.Println("Unknown command", cmd)
 	}
