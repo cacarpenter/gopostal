@@ -1,14 +1,22 @@
 package postman
 
+import "time"
+
 type Environment struct {
-	Name      string
-	variables map[string]string
+	Id                   string    `json:"id"`
+	Name                 string    `json:"name"`
+	Values               []EnvVal  `json:"values"`
+	PostmanVariableScope string    `json:"_postman_variable_scope"`
+	PostmanExportedAt    time.Time `json:"_postman_exported_at"`
+	PostmanExportedUsing string    `json:"_postman_exported_using"`
 }
 
-func (e *Environment) Put(key, val string) {
-	e.variables[key] = val
+type EnvVal struct {
+	Key     string `json:"key"`
+	Value   string `json:"value"`
+	Enabled bool   `json:"enabled"`
 }
 
-func (e *Environment) Get(key string) string {
-	return e.variables[key]
+func Read(filename string) (*Environment, error) {
+	return nil, nil
 }

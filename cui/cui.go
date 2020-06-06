@@ -8,6 +8,7 @@ import (
 )
 
 var openCollection *postman.Collection
+var dirty bool
 
 func Run() {
 	g, err := gocui.NewGui(gocui.OutputNormal)
@@ -16,7 +17,7 @@ func Run() {
 	}
 	defer g.Close()
 
-	g.SetManagerFunc(layout)
+	g.SetManagerFunc(goldenLayout)
 
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
@@ -40,7 +41,7 @@ func Open(filename string) {
 	}
 	defer g.Close()
 
-	g.SetManagerFunc(itemLayout)
+	g.SetManagerFunc(goldenLayout)
 
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
@@ -51,24 +52,6 @@ func Open(filename string) {
 	}
 }
 
-func itemLayout(g *gocui.Gui) error {
-	if openCollection == nil {
-		return fmt.Errorf("No open collection")
-	}
-	//	names := openCollection.Items
-	yHeight := len(openCollection.Items)/2 + 1
-	maxX, maxY := g.Size()
-	if v, err := g.SetView("items", maxX/2-12, maxY/2-yHeight, maxX/2+12, maxY/2+yHeight); err != nil {
-		if err != gocui.ErrUnknownView {
-			return err
-		}
-		for _, pci := range openCollection.Items {
-			fmt.Fprintln(v, pci.Name)
-		}
-	}
-	return nil
-}
-
 func layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 	if v, err := g.SetView("hello", maxX/2-7, maxY/2, maxX/2+7, maxY/2+2); err != nil {
@@ -77,6 +60,64 @@ func layout(g *gocui.Gui) error {
 		}
 		fmt.Fprintln(v, "Hello world!")
 	}
+	return nil
+}
+
+/*
+A layout based on the golden ratio sort of
+*/
+func goldenLayout(g *gocui.Gui) error {
+	maxX, maxY := g.Size()
+	remainder := int(float64(maxX) - float64(maxY)*2.5)
+
+	if openCollection == nil {
+		renderError(g, "No File Open")
+		return nil
+	}
+
+	if leftside, err := g.SetView("leftside", 0, 0, remainder-1, maxY-1); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		// fmt.Fprintf(leftside, "LEFT:  %d %d X %d %d", 0, 0, remainder-1, maxY-1)
+		renderCollectionItems(leftside, openCollection)
+	}
+	if mainView, err := g.SetView("main", remainder, 0, maxX-1, maxY-1); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		fmt.Fprintf(mainView, "MAIN:  %d %d X %d %d", remainder, 0, maxX-1, maxY-1)
+	}
+	return nil
+}
+
+func renderError(g *gocui.Gui, msg string) error {
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("hello", maxX/2-7, maxY/2, maxX/2+7, maxY/2+2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		fmt.Fprintln(v, msg)
+	}
+	return nil
+}
+
+func renderCollectionItems(v *gocui.View, pc *postman.Collection) {
+	fmt.Fprintf(v, "- %s - \n", pc.Info.Name)
+	maxItemNameLength := 0
+	for _, n := range openCollection.Items {
+		if len(n.Name) > maxItemNameLength {
+			maxItemNameLength = len(n.Name)
+		}
+	}
+	maxItemNameLength = maxItemNameLength/2 + 1
+
+	for _, pci := range openCollection.Items {
+		fmt.Fprintln(v, pci.Name)
+	}
+}
+
+func itemLayout(g *gocui.Gui) error {
 	return nil
 }
 

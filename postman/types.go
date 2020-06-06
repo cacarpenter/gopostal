@@ -1,6 +1,10 @@
 package postman
 
-const SCHEMA_2_1_0 = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+const (
+	ENV_EXT = "postman_environment.json"
+	COLL_EXT = "postman_collection.json"
+	SCHEMA_2_1_0 = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+)
 
 type Collection struct {
 	Info  CollectionInfo   `json:"info"`
