@@ -114,6 +114,17 @@ func renderCollectionItems(v *gocui.View, pc *postman.Collection) {
 
 	for _, pci := range openCollection.Items {
 		fmt.Fprintln(v, pci.Name)
+		for _, ch := range pci.Children {
+			if ch.Request != nil {
+				fmt.Fprintf(v, "|%s|\t", ch.Request.Method)
+			} else if len(ch.Children) > 0 {
+				fmt.Fprintf(v, " > \t")
+			} else {
+				fmt.Fprint(v, "\t\t")
+			}
+			fmt.Fprintf(v, "\t%q", ch.Name)
+			fmt.Fprintln(v)
+		}
 	}
 }
 
