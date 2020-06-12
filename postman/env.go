@@ -1,6 +1,10 @@
 package postman
 
-import "time"
+import (
+	"encoding/json"
+	"io/ioutil"
+	"time"
+)
 
 type Environment struct {
 	Id                   string    `json:"id"`
@@ -17,6 +21,15 @@ type EnvVal struct {
 	Enabled bool   `json:"enabled"`
 }
 
-func Read(filename string) (*Environment, error) {
-	return nil, nil
+func ParseEnv(filename string) (*Environment, error) {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	var e Environment
+	err = json.Unmarshal(data, &e)
+	if err != nil {
+		return nil, err
+	}
+	return &e, nil
 }

@@ -7,13 +7,21 @@ import (
 	"log"
 )
 
+const (
+	treeViewName    = "tree"
+	requestViewName = "request"
+	errorViewName   = "error"
+)
+
 type uiState struct {
-	openCollection   *postman.Collection
-	dirty            bool
-	level, selection int
+	openCollection *postman.Collection
+	dirty          bool
+	variables      map[string]string
 }
 
 var state uiState
+
+var itemTree *ItemTree
 
 func Run() {
 	g, err := gocui.NewGui(gocui.OutputNormal)
@@ -28,35 +36,33 @@ func Run() {
 		log.Panicln(err)
 	}
 
-	state = uiState{nil, false, 0, 0}
-
 	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
 		log.Panicln(err)
 	}
 }
 
-func Open(filename string) {
-	pmColl, err := postman.Parse(filename)
+func Open(collection, environment string) {
+	pmColl, err := postman.Parse(collection)
 	if err != nil {
 		log.Panicln(err)
 		return
 	}
-	state.openCollection = pmColl
-	g, err := gocui.NewGui(gocui.OutputNormal)
-	if err != nil {
-		log.Panicln(err)
-	}
-	defer g.Close()
+	state = uiState{pmColl, false, make(map[string]string)}
 
-	g.SetManagerFunc(goldenLayout)
+	itemTree = NewItemTree(pmColl)
 
-	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
-		log.Panicln(err)
+	if len(environment) > 0 {
+		env, err := postman.ParseEnv(environment)
+		if err == nil {
+			fmt.Println("Loading environment", env.Name)
+			for _, ev := range env.Values {
+				if ev.Enabled {
+					state.variables[ev.Key] = ev.Value
+				}
+			}
+		}
 	}
-
-	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
-		log.Panicln(err)
-	}
+	Run()
 }
 
 /*
@@ -70,85 +76,60 @@ func goldenLayout(g *gocui.Gui) error {
 		return nil
 	}
 
-	// goldenish ratio
+	// golden-ish ratio
 	// remainder := int(float64(maxX) - float64(maxY)*2.5)
 	/*
-	menuX0 := 0
-	menuY0 := 0
-	menuX1 := remainder - 1
-	menuY1 := maxY - 1
+		menuX0 := 0
+		menuY0 := 0
+		menuX1 := remainder - 1
+		menuY1 := maxY - 1
 
-	mainX0 := remainder
-	mainY0 := 0
-	mainX1 := maxX - 1
-	mainY1 := maxY - 1
-	 */
+		mainX0 := remainder
+		mainY0 := 0
+		mainX1 := maxX - 1
+		mainY1 := maxY - 1
+	*/
 
-	menuX0 := 0
-	menuY0 := 0
-	menuX1 := maxX - 9
-	menuY1 := maxY - 1
+	treeX0 := 0
+	treeY0 := 0
+	treeX1 := maxX - 9
+	treeY1 := maxY - 1
 
-	mainX0 := maxX - 10
-	mainY0 := 0
-	mainX1 := maxX - 1
-	mainY1 := maxY - 1
+	requestX0 := maxX - 10
+	requestY0 := 0
+	requestX1 := maxX - 1
+	requestY1 := maxY - 1
 
-	if leftside, err := g.SetView("menu", menuX0, menuY0, menuX1, menuY1); err != nil {
+	if treeView, err := g.SetView(treeViewName, treeX0, treeY0, treeX1, treeY1); err != nil {
+		treeView.Title = "Tree"
+		// treeView.Highlight = true
+		// treeView.Autoscroll = true
+		// treeView.SetCursor(0, 0)
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		renderCollectionItems(leftside, state)
+		if itemTree != nil {
+			itemTree.Layout(treeView)
+		}
 	}
-	if mainView, err := g.SetView("main", mainX0, mainY0, mainX1, mainY1); err != nil {
+	if requestView, err := g.SetView(requestViewName, requestX0, requestY0, requestX1, requestY1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		fmt.Fprintf(mainView, "MAIN:  %d %d X %d %d", mainX0, mainY0, mainX1, mainY1)
+		fmt.Fprintf(requestView, "MAIN:  %d %d X %d %d", requestX0, requestY0, requestX1, requestY1)
 	}
 	return nil
 }
 
 func renderError(g *gocui.Gui, msg string) error {
 	maxX, maxY := g.Size()
-	if v, err := g.SetView("hello", maxX/2-7, maxY/2, maxX/2+7, maxY/2+2); err != nil {
+	if v, err := g.SetView("error", maxX/2-7, maxY/2, maxX/2+7, maxY/2+2); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 		fmt.Fprintln(v, msg)
 	}
 	return nil
-}
-
-func renderCollectionItems(v *gocui.View, st uiState) {
-	coll := st.openCollection
-	fmt.Fprintf(v, "- %s - \n", coll.Info.Name)
-	maxItemNameLength := 0
-	for _, n := range state.openCollection.Items {
-		if len(n.Name) > maxItemNameLength {
-			maxItemNameLength = len(n.Name)
-		}
-	}
-	maxItemNameLength = maxItemNameLength/2 + 1
-
-	for pciIdx, pci := range coll.Items {
-		fmt.Fprintf(v, " > %s\n", pci.Name)
-		for childIdx, child := range pci.Children {
-			printCollectionItem(v, &child, st.level == pciIdx && st.selection == childIdx)
-		}
-	}
-}
-
-func printCollectionItem(v *gocui.View, pci *postman.CollectionItem, selected bool) {
-	if pci.Request != nil {
-		fmt.Fprintf(v, "|%s|\t", pci.Request.Method)
-	} else if len(pci.Children) > 0 {
-		fmt.Fprintf(v, " > \t")
-	} else {
-		fmt.Fprint(v, "\t\t")
-	}
-	fmt.Fprintf(v, "\t%q %t", pci.Name, selected)
-	fmt.Fprintln(v)
 }
 
 func quit(g *gocui.Gui, v *gocui.View) error {

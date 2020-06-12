@@ -1,23 +1,27 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/cacarpenter/gopostal/cui"
 	"github.com/cacarpenter/gopostal/postman"
 	"github.com/cacarpenter/gopostal/util"
-	"os"
 )
 
 func main() {
-	if len(os.Args) < 2 {
+	envFlag := flag.String("env", "local.postman_environment.json", "Specify postman environment")
+	flag.Parse()
+
+	if len(flag.Args()) < 2 {
 		cui.Run()
 		return
 	}
 
-	cmd := os.Args[1]
-	subargs := os.Args[2:]
+	fmt.Println(flag.Args())
+	cmd := flag.Arg(0)
+	subargs := flag.Args()[1:]
 
-	fmt.Println("running ", cmd, subargs)
+	fmt.Printf("running %q - %q\n", cmd, subargs)
 
 	switch cmd {
 	case "diff":
@@ -25,7 +29,7 @@ func main() {
 	case "print", "show":
 		printColl(subargs)
 	case "open":
-		cui.Open(subargs[0])
+		cui.Open(subargs[0], *envFlag)
 	default:
 		fmt.Println("Unknown command", cmd)
 	}
