@@ -20,7 +20,7 @@ type ItemTree struct {
 
 func NewItemTree(pc *postman.Collection) *ItemTree {
 	// the root item is the selected item
-	it := ItemTree{pc, pc, 0 }
+	it := ItemTree{pc, pc, 0}
 	return &it
 }
 
@@ -40,29 +40,52 @@ func (it *ItemTree) Layout(v *gocui.View) {
 }
 
 func (it *ItemTree) ArrowUp() {
+	var nextItem *postman.Collection
 	prevSib := it.selectedItem.PreviousSibling()
 	if prevSib != nil {
+		if prevSib.Expanded() {
+			nextItem = prevSib.Children[len(prevSib.Children)-1]
+		} else {
+			nextItem = prevSib
+		}
+	} else if it.selectedItem.Parent() != nil {
+		if it.selectedItem.Parent().Expanded() {
+			nextItem = it.selectedItem.Parent()
+		} else {
+			parentSib := it.selectedItem.Parent().PreviousSibling()
+			if parentSib != nil {
+				nextItem = parentSib
+			}
+		}
+	}
+	if nextItem != nil {
 		it.selectedItem.SetSelected(false)
-		prevSib.SetSelected(true)
-		it.selectedItem = prevSib
+		nextItem.SetSelected(true)
+		it.selectedItem = nextItem
 	}
 }
 
 func (it *ItemTree) ArrowDown() {
+	var nextItem *postman.Collection
 	if it.selectedItem.Expanded() {
 		if len(it.selectedItem.Children) > 0 {
-			it.selectedItem.SetSelected(false)
-			firstChild := it.selectedItem.Children[0]
-			firstChild.SetSelected(true)
-			it.selectedItem = firstChild
+			nextItem = it.selectedItem.Children[0]
 		}
 	} else {
 		nextSib := it.selectedItem.NextSibling()
 		if nextSib != nil {
-			it.selectedItem.SetSelected(false)
-			nextSib.SetSelected(true)
-			it.selectedItem = nextSib
+			nextItem = nextSib
+		} else if it.selectedItem.Parent() != nil {
+			parentSib := it.selectedItem.Parent().NextSibling()
+			if parentSib != nil {
+				nextItem = parentSib
+			}
 		}
+	}
+	if nextItem != nil {
+		it.selectedItem.SetSelected(false)
+		nextItem.SetSelected(true)
+		it.selectedItem = nextItem
 	}
 }
 
