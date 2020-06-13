@@ -75,6 +75,6 @@ func cursorUp(g *gocui.Gui, v *gocui.View) error {
 
 func toggleExpand(g *gocui.Gui, v *gocui.View) error {
 	return updateTree(g, func(it *ItemTree) {
-		it.ToggleExpend()
+		it.ToggleExpanded()
 	})
 }

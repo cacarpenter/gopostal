@@ -10,7 +10,18 @@ import (
 const (
 	treeViewName    = "tree"
 	requestViewName = "request"
+	debugViewName   = "debug"
 	errorViewName   = "error"
+
+	// font coloring
+	colorReset  = "\033[0m"
+	colorRed    = "\033[31m"
+	colorGreen  = "\033[32m"
+	colorYellow = "\033[33m"
+	colorBlue   = "\033[34m"
+	colorPurple = "\033[35m"
+	colorCyan   = "\033[36m"
+	colorWhite  = "\033[37m"
 )
 
 type uiState struct {
@@ -49,12 +60,13 @@ func Open(collection, environment string) {
 	}
 	state = uiState{pmColl, false, make(map[string]string)}
 
+	// show all the root items by default
+	pmColl.ToggleExpanded()
 	itemTree = NewItemTree(pmColl)
 
 	if len(environment) > 0 {
 		env, err := postman.ParseEnv(environment)
 		if err == nil {
-			fmt.Println("Loading environment", env.Name)
 			for _, ev := range env.Values {
 				if ev.Enabled {
 					state.variables[ev.Key] = ev.Value
@@ -90,7 +102,7 @@ func goldenLayout(g *gocui.Gui) error {
 		mainY1 := maxY - 1
 	*/
 
-	mainWidth := 80
+	mainWidth := 100
 
 	treeX0 := 0
 	treeY0 := 0
@@ -100,7 +112,12 @@ func goldenLayout(g *gocui.Gui) error {
 	requestX0 := maxX - mainWidth
 	requestY0 := 0
 	requestX1 := maxX - 1
-	requestY1 := maxY - 1
+	requestY1 := maxY/2 - 1
+
+	debugX0 := maxX - mainWidth
+	debugY0 := maxY / 2
+	debugX1 := maxX - 1
+	debugY1 := maxY - 1
 
 	if treeView, err := g.SetView(treeViewName, treeX0, treeY0, treeX1, treeY1); err != nil {
 		treeView.Title = "Tree"
@@ -119,6 +136,12 @@ func goldenLayout(g *gocui.Gui) error {
 			return err
 		}
 		fmt.Fprintf(requestView, "MAIN:  %d %d X %d %d", requestX0, requestY0, requestX1, requestY1)
+	}
+	if debugView, err := g.SetView(debugViewName, debugX0, debugY0, debugX1, debugY1); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		fmt.Fprintf(debugView, "DEBUG:  %d %d X %d %d", debugX0, debugY0, debugX1, debugY1)
 	}
 	return nil
 }
