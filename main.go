@@ -40,7 +40,7 @@ func printColl(subargs []string) {
 		fmt.Println("gopostal print filename")
 		return
 	}
-	coll, err := postman.Parse(subargs[0])
+	coll, err := postman.ParseCollection(subargs[0])
 	if err != nil {
 		panic(err)
 	}
@@ -52,11 +52,11 @@ func runDiff(subargs []string) {
 		fmt.Println("gopostal diff filename1 filename2")
 		return
 	}
-	coll1, err := postman.Parse(subargs[0])
+	coll1, err := postman.ParseCollection(subargs[0])
 	if err != nil {
 		panic(err)
 	}
-	coll2, err := postman.Parse(subargs[1])
+	coll2, err := postman.ParseCollection(subargs[1])
 	if err != nil {
 		panic(err)
 	}
@@ -66,18 +66,18 @@ func runDiff(subargs []string) {
 	blank := util.StringOf(' ', tablelength)
 	space := "|        |"
 	max := 0
-	if len(coll1.Items) > len(coll2.Items) {
-		max = len(coll1.Items)
+	if len(coll1.Children) > len(coll2.Children) {
+		max = len(coll1.Children)
 	} else {
-		max = len(coll2.Items)
+		max = len(coll2.Children)
 	}
 	fmt.Println(hline, space, hline)
 	fmt.Println(subargs[0], space, subargs[1])
 	fmt.Println(hline, space, hline)
 	for i := 0; i < max; i++ {
 		iname1 := blank
-		if len(coll1.Items) > i {
-			iname1 = util.Pad(coll1.Items[i].Name, tablelength)
+		if len(coll1.Children) > i {
+			iname1 = util.Pad(coll1.Children[i].Name, tablelength)
 			/*
 				if len(coll1.Item[i].Name) < tablelength {
 					fill := util.StringOf(' ', len(coll1.Item[i].Name)-tablelength)
@@ -88,11 +88,11 @@ func runDiff(subargs []string) {
 			*/
 		}
 		iname2 := blank
-		if len(coll2.Items) > i {
-			iname2 = util.Pad(coll2.Items[i].Name, tablelength)
+		if len(coll2.Children) > i {
+			iname2 = util.Pad(coll2.Children[i].Name, tablelength)
 		}
 		fmt.Println(iname1, space, iname2)
 	}
 
-	fmt.Println(len(coll1.Items), " vs ", len(coll2.Items))
+	fmt.Println(len(coll1.Children), " vs ", len(coll2.Children))
 }

@@ -1,28 +1,10 @@
 package postman
 
 const (
-	ENV_EXT = "postman_environment.json"
-	COLL_EXT = "postman_collection.json"
+	ENV_EXT      = "postman_environment.json"
+	COLL_EXT     = "postman_collection.json"
 	SCHEMA_2_1_0 = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 )
-
-type Collection struct {
-	Info  CollectionInfo   `json:"info"`
-	Items []CollectionItem `json:"item"`
-}
-
-type CollectionInfo struct {
-	PostmanId string `json:"_postman_id"`
-	Name      string `json:"name"`
-	Schema    string `json:"schema"`
-}
-
-type CollectionItem struct {
-	Name     string           `json:"name"`
-	Children []CollectionItem `json:"item"`
-	Events   []Event          `json:"event"`
-	Request  *Request         `json:"request"`
-}
 
 type Header struct {
 	Key   string `json:"key"`

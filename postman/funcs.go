@@ -1,25 +1,8 @@
 package postman
 
-import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-)
+import "fmt"
 
-func Parse(filename string) (*Collection, error) {
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	var coll Collection
-	err = json.Unmarshal(data, &coll)
-	if err != nil {
-		return nil, err
-	}
-	return &coll, nil
-}
-
-func printCollectionItem(pad string, ci *CollectionItem) {
+func printCollectionItem(pad string, ci *Collection) {
 	fmt.Println(pad+"* Name :", ci.Name)
 	if ci.Request != nil {
 		fmt.Println(pad+"* Req  : ", ci.Request)
@@ -31,7 +14,7 @@ func printCollectionItem(pad string, ci *CollectionItem) {
 
 func Print(coll *Collection) {
 	fmt.Println("Name:", coll.Info.Name)
-	for _, i := range coll.Items {
+	for _, i := range coll.Children {
 		printCollectionItem("  ", &i)
 	}
 }

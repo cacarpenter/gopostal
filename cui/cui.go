@@ -42,7 +42,7 @@ func Run() {
 }
 
 func Open(collection, environment string) {
-	pmColl, err := postman.Parse(collection)
+	pmColl, err := postman.ParseCollection(collection)
 	if err != nil {
 		log.Panicln(err)
 		return
@@ -90,12 +90,14 @@ func goldenLayout(g *gocui.Gui) error {
 		mainY1 := maxY - 1
 	*/
 
+	mainWidth := 80
+
 	treeX0 := 0
 	treeY0 := 0
-	treeX1 := maxX - 9
+	treeX1 := maxX - mainWidth - 1
 	treeY1 := maxY - 1
 
-	requestX0 := maxX - 10
+	requestX0 := maxX - mainWidth
 	requestY0 := 0
 	requestX1 := maxX - 1
 	requestY1 := maxY - 1
