@@ -2,6 +2,7 @@ package cui
 
 import (
 	"fmt"
+	"github.com/cacarpenter/gopostal/gp"
 	"github.com/cacarpenter/gopostal/postman"
 	"github.com/jroimartin/gocui"
 	"log"
@@ -62,18 +63,15 @@ func (ui *ConsoleUI) Open(collection, environment string) {
 	ui.requestWidget = &RequestWidget{pmColl}
 	ui.variablesWidget = &VariablesWidget{}
 
-	/*
-		if len(environment) > 0 {
-			env, err := postman.ParseEnv(environment)
-			if err == nil {
-				for _, ev := range env.Values {
-					if ev.Enabled {
-						state.variables[ev.Key] = ev.Value
-					}
-				}
-			}
+	if len(environment) > 0 {
+		env, err := postman.ParseEnv(environment)
+		if err == nil {
+			sess := gp.CurrentSession()
+			sess.Update(env, true)
+		} else {
+			fmt.Println("Cant load env", err)
 		}
-	*/
+	}
 	ui.Run()
 }
 
@@ -144,7 +142,8 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 			return err
 		}
 		variablesView.Title = "Variables"
-		fmt.Fprintf(variablesView, "v:  %d %d X %d %d", variablesX0, variablesY0, variablesX1, variablesY1)
+		// fmt.Fprintf(variablesView, "v:  %d %d X %d %d", variablesX0, variablesY0, variablesX1, variablesY1)
+		ui.variablesWidget.Layout(variablesView)
 	}
 	return nil
 }

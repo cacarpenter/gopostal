@@ -22,7 +22,7 @@ func main() {
 	cmd := flag.Arg(0)
 	subargs := flag.Args()[1:]
 
-	fmt.Printf("running %q - %q\n", cmd, subargs)
+	// fmt.Printf("running %q - %q\n", cmd, subargs)
 
 	switch cmd {
 	case "diff":

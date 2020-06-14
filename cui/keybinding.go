@@ -1,6 +1,7 @@
 package cui
 
 import (
+	"github.com/cacarpenter/gopostal/gp"
 	"github.com/jroimartin/gocui"
 	"log"
 )
@@ -25,6 +26,10 @@ func (ui *ConsoleUI) keybindings(g *gocui.Gui) error {
 		log.Panicln(err)
 	}
 	if err := g.SetKeybinding("", 'e', gocui.ModNone, ui.toggleExpand); err != nil {
+		log.Panicln(err)
+	}
+
+	if err := g.SetKeybinding("", gocui.KeyEnter, gocui.ModNone, ui.callRequest); err != nil {
 		log.Panicln(err)
 	}
 
@@ -69,4 +74,11 @@ func (ui *ConsoleUI) toggleExpand(g *gocui.Gui, v *gocui.View) error {
 	return ui.updateTree(g, func(it *ItemTree) {
 		it.ToggleExpanded()
 	})
+}
+
+func (ui *ConsoleUI) callRequest(g *gocui.Gui, v *gocui.View) error {
+	if ui.itemTree.selectedItem != nil && ui.itemTree.selectedItem.Request != nil {
+		gp.CallRequest(ui.itemTree.selectedItem.Request)
+	}
+	return nil
 }

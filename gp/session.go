@@ -1,7 +1,6 @@
 package gp
 
 import (
-	"fmt"
 	"github.com/cacarpenter/gopostal/postman"
 	"sync"
 )
@@ -23,16 +22,19 @@ var once sync.Once
 
 func CurrentSession() *Session {
 	once.Do(func() {
-		singleton = &Session{}
+		singleton = &Session{make(map[string]string)}
 	})
 	return singleton
 }
 
-func (s *Session) Update(env postman.Environment, overwrite bool) {
-	fmt.Println("Updating with postman environment", env.Name)
+func (s *Session) Update(env *postman.Environment, overwrite bool) {
 	for _, v := range env.Values {
 		if _, exists := s.variables[v.Key]; !exists || overwrite {
 			s.variables[v.Key] = v.Value
 		}
 	}
+}
+
+func (s *Session) Vars() map[string]string {
+	return s.variables
 }
