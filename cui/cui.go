@@ -25,27 +25,22 @@ const (
 	colorWhite  = "\033[37m"
 )
 
-type uiState struct {
-	openCollection *postman.Collection
-	dirty          bool
-	variables      map[string]string
+type ConsoleUI struct {
+	itemTree        *ItemTree
+	requestWidget   *RequestWidget
+	variablesWidget *VariablesWidget
 }
 
-var state uiState
-
-var itemTree *ItemTree
-var requestWidget *RequestWidget
-
-func Run() {
+func (ui *ConsoleUI) Run() {
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
 		log.Panicln(err)
 	}
 	defer g.Close()
 
-	g.SetManagerFunc(goldenLayout)
+	g.SetManagerFunc(ui.goldenLayout)
 
-	if err := keybindings(g); err != nil {
+	if err := ui.keybindings(g); err != nil {
 		log.Panicln(err)
 	}
 
@@ -54,42 +49,46 @@ func Run() {
 	}
 }
 
-func Open(collection, environment string) {
+func (ui *ConsoleUI) Open(collection, environment string) {
 	pmColl, err := postman.ParseCollection(collection)
 	if err != nil {
 		log.Panicln(err)
 		return
 	}
-	state = uiState{pmColl, false, make(map[string]string)}
 
 	// show all the root items by default
 	pmColl.ToggleExpanded()
-	itemTree = NewItemTree(pmColl)
-	requestWidget = &RequestWidget{pmColl}
+	ui.itemTree = NewItemTree(pmColl)
+	ui.requestWidget = &RequestWidget{pmColl}
+	ui.variablesWidget = &VariablesWidget{}
 
-	if len(environment) > 0 {
-		env, err := postman.ParseEnv(environment)
-		if err == nil {
-			for _, ev := range env.Values {
-				if ev.Enabled {
-					state.variables[ev.Key] = ev.Value
+	/*
+		if len(environment) > 0 {
+			env, err := postman.ParseEnv(environment)
+			if err == nil {
+				for _, ev := range env.Values {
+					if ev.Enabled {
+						state.variables[ev.Key] = ev.Value
+					}
 				}
 			}
 		}
-	}
-	Run()
+	*/
+	ui.Run()
 }
 
 /*
 A layout based on the golden ratio sort of
 */
-func goldenLayout(g *gocui.Gui) error {
+func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 
-	if state.openCollection == nil {
-		renderError(g, "No File Open")
-		return nil
-	}
+	/*
+		if state.openCollection == nil {
+			renderError(g, "No File Open")
+			return nil
+		}
+	*/
 
 	// golden-ish ratio
 	remainder := int(float64(maxX) - float64(maxY)*2.5)
@@ -131,9 +130,7 @@ func goldenLayout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		if itemTree != nil {
-			itemTree.Layout(treeView)
-		}
+		ui.itemTree.Layout(treeView)
 	}
 	if requestView, err := g.SetView(requestViewName, requestX0, requestY0, requestX1, requestY1); err != nil {
 		if err != gocui.ErrUnknownView {

@@ -5,70 +5,52 @@ import (
 	"log"
 )
 
-func keybindings(g *gocui.Gui) error {
+func (ui *ConsoleUI) keybindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
 	}
 	if err := g.SetKeybinding("", 'q', gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
 	}
-	if err := g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, cursorDown); err != nil {
+	if err := g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, ui.cursorDown); err != nil {
 		log.Panicln(err)
 	}
-	if err := g.SetKeybinding("", 'j', gocui.ModNone, cursorDown); err != nil {
+	if err := g.SetKeybinding("", 'j', gocui.ModNone, ui.cursorDown); err != nil {
 		log.Panicln(err)
 	}
-	if err := g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, cursorUp); err != nil {
+	if err := g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, ui.cursorUp); err != nil {
 		log.Panicln(err)
 	}
-	if err := g.SetKeybinding("", 'k', gocui.ModNone, cursorUp); err != nil {
+	if err := g.SetKeybinding("", 'k', gocui.ModNone, ui.cursorUp); err != nil {
 		log.Panicln(err)
 	}
-	if err := g.SetKeybinding("", 'e', gocui.ModNone, toggleExpand); err != nil {
+	if err := g.SetKeybinding("", 'e', gocui.ModNone, ui.toggleExpand); err != nil {
 		log.Panicln(err)
 	}
 
 	return nil
 }
 
-func cursorMovement(st uiState) func(g *gocui.Gui, v *gocui.View) error {
-	return func(g *gocui.Gui, v *gocui.View) error {
-		tv, err := g.View(treeViewName)
-		if err != nil {
-			return err
-		}
-		if itemTree != nil {
-			itemTree.MoveDown()
-			itemTree.Layout(tv)
-		}
-
-		// ox, oy := tv.Origin()
-		// cx, cy := tv.Cursor()
-		// fmt.Fprintf(tv, "%d %d %d %d\n", ox, oy, cx, cy)
-		return nil
-	}
-}
-
-func updateTree(g *gocui.Gui, f func(it *ItemTree)) error {
+func (ui *ConsoleUI) updateTree(g *gocui.Gui, f func(it *ItemTree)) error {
 	tv, err := g.View(treeViewName)
 	if err != nil {
 		return err
 	}
-	if itemTree != nil {
-		f(itemTree)
-		itemTree.Layout(tv)
+	if ui.itemTree != nil {
+		f(ui.itemTree)
+		ui.itemTree.Layout(tv)
 	}
 	rv, err := g.View(requestViewName)
 	if err != nil {
 		return err
 	}
-	requestWidget.collection = itemTree.selectedItem
-	requestWidget.Layout(rv)
+	ui.requestWidget.collection = ui.itemTree.selectedItem
+	ui.requestWidget.Layout(rv)
 	return nil
 }
 
-func cursorDown(g *gocui.Gui, v *gocui.View) error {
-	err := updateTree(g, func(it *ItemTree) {
+func (ui *ConsoleUI) cursorDown(g *gocui.Gui, v *gocui.View) error {
+	err := ui.updateTree(g, func(it *ItemTree) {
 		it.MoveDown()
 	})
 	if err != nil {
@@ -77,14 +59,14 @@ func cursorDown(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
-func cursorUp(g *gocui.Gui, v *gocui.View) error {
-	return updateTree(g, func(it *ItemTree) {
+func (ui *ConsoleUI) cursorUp(g *gocui.Gui, v *gocui.View) error {
+	return ui.updateTree(g, func(it *ItemTree) {
 		it.MoveUp()
 	})
 }
 
-func toggleExpand(g *gocui.Gui, v *gocui.View) error {
-	return updateTree(g, func(it *ItemTree) {
+func (ui *ConsoleUI) toggleExpand(g *gocui.Gui, v *gocui.View) error {
+	return ui.updateTree(g, func(it *ItemTree) {
 		it.ToggleExpanded()
 	})
 }

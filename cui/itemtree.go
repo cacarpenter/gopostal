@@ -24,7 +24,7 @@ func NewItemTree(pc *postman.Collection) *ItemTree {
 func (it *ItemTree) Layout(v *gocui.View) {
 	coll := it.collection
 	maxItemNameLength := 0
-	for _, n := range state.openCollection.Children {
+	for _, n := range it.collection.Children {
 		if len(n.Name) > maxItemNameLength {
 			maxItemNameLength = len(n.Name)
 		}

@@ -13,7 +13,8 @@ func main() {
 	flag.Parse()
 
 	if len(flag.Args()) < 2 {
-		cui.Run()
+		c := cui.ConsoleUI{}
+		c.Run()
 		return
 	}
 
@@ -29,7 +30,8 @@ func main() {
 	case "print", "show":
 		printColl(subargs)
 	case "open":
-		cui.Open(subargs[0], *envFlag)
+		c := cui.ConsoleUI{}
+		c.Open(subargs[0], *envFlag)
 	default:
 		fmt.Println("Unknown command", cmd)
 	}

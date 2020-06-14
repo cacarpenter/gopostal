@@ -5,7 +5,6 @@ import (
 )
 
 type VariablesWidget struct {
-
 }
 
 func (vw *VariablesWidget) Layout(v *gocui.View) {
