@@ -38,7 +38,7 @@ func cursorMovement(st uiState) func(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 		if itemTree != nil {
-			itemTree.ArrowDown()
+			itemTree.MoveDown()
 			itemTree.Layout(tv)
 		}
 
@@ -58,18 +58,28 @@ func updateTree(g *gocui.Gui, f func(it *ItemTree)) error {
 		f(itemTree)
 		itemTree.Layout(tv)
 	}
+	rv, err := g.View(requestViewName)
+	if err != nil {
+		return err
+	}
+	requestWidget.collection = itemTree.selectedItem
+	requestWidget.Layout(rv)
 	return nil
 }
 
 func cursorDown(g *gocui.Gui, v *gocui.View) error {
-	return updateTree(g, func(it *ItemTree) {
-		it.ArrowDown()
+	err := updateTree(g, func(it *ItemTree) {
+		it.MoveDown()
 	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func cursorUp(g *gocui.Gui, v *gocui.View) error {
 	return updateTree(g, func(it *ItemTree) {
-		it.ArrowUp()
+		it.MoveUp()
 	})
 }
 

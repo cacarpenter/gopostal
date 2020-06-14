@@ -27,6 +27,8 @@ type Url struct {
 type Request struct {
 	Method string   `json:"method"`
 	Header []Header `json:"header"`
+	Url    Url      `json:"url"`
+	Body   *Body    `json:"body"`
 }
 
 type Body struct {
@@ -40,6 +42,7 @@ type ProtocolProfileBehavior struct {
 
 type Event struct {
 	Listen string `json:"listen"`
+	Script Script `json:"script"`
 }
 
 type Script struct {

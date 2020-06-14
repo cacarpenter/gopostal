@@ -8,10 +8,11 @@ import (
 )
 
 const (
-	treeViewName    = "tree"
-	requestViewName = "request"
-	debugViewName   = "debug"
-	errorViewName   = "error"
+	treeViewName      = "tree"
+	requestViewName   = "request"
+	debugViewName     = "debug"
+	errorViewName     = "error"
+	variablesViewName = "variables"
 
 	// font coloring
 	colorReset  = "\033[0m"
@@ -33,6 +34,7 @@ type uiState struct {
 var state uiState
 
 var itemTree *ItemTree
+var requestWidget *RequestWidget
 
 func Run() {
 	g, err := gocui.NewGui(gocui.OutputNormal)
@@ -63,6 +65,7 @@ func Open(collection, environment string) {
 	// show all the root items by default
 	pmColl.ToggleExpanded()
 	itemTree = NewItemTree(pmColl)
+	requestWidget = &RequestWidget{pmColl}
 
 	if len(environment) > 0 {
 		env, err := postman.ParseEnv(environment)
@@ -89,35 +92,36 @@ func goldenLayout(g *gocui.Gui) error {
 	}
 
 	// golden-ish ratio
-	// remainder := int(float64(maxX) - float64(maxY)*2.5)
-	/*
-		menuX0 := 0
-		menuY0 := 0
-		menuX1 := remainder - 1
-		menuY1 := maxY - 1
-
-		mainX0 := remainder
-		mainY0 := 0
-		mainX1 := maxX - 1
-		mainY1 := maxY - 1
-	*/
-
-	mainWidth := 100
-
+	remainder := int(float64(maxX) - float64(maxY)*2.5)
 	treeX0 := 0
 	treeY0 := 0
-	treeX1 := maxX - mainWidth - 1
+	treeX1 := remainder - 1
 	treeY1 := maxY - 1
 
-	requestX0 := maxX - mainWidth
+	requestX0 := remainder
 	requestY0 := 0
 	requestX1 := maxX - 1
-	requestY1 := maxY/2 - 1
+	requestY1 := maxY - 1
 
-	debugX0 := maxX - mainWidth
-	debugY0 := maxY / 2
-	debugX1 := maxX - 1
-	debugY1 := maxY - 1
+	// test values
+	/*
+		mainWidth := 100
+
+		treeX0 := 0
+		treeY0 := 0
+		treeX1 := maxX - mainWidth - 1
+		treeY1 := maxY - 1
+
+		requestX0 := maxX - mainWidth
+		requestY0 := 0
+		requestX1 := maxX - 1
+		requestY1 := maxY/2 - 1
+	*/
+
+	variablesX0 := maxX - remainder
+	variablesY0 := maxY / 2
+	variablesX1 := maxX - 1
+	variablesY1 := maxY - 1
 
 	if treeView, err := g.SetView(treeViewName, treeX0, treeY0, treeX1, treeY1); err != nil {
 		treeView.Title = "Tree"
@@ -135,13 +139,15 @@ func goldenLayout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
+		requestView.Title = "Request"
 		fmt.Fprintf(requestView, "MAIN:  %d %d X %d %d", requestX0, requestY0, requestX1, requestY1)
 	}
-	if debugView, err := g.SetView(debugViewName, debugX0, debugY0, debugX1, debugY1); err != nil {
+	if variablesView, err := g.SetView(variablesViewName, variablesX0, variablesY0, variablesX1, variablesY1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		fmt.Fprintf(debugView, "DEBUG:  %d %d X %d %d", debugX0, debugY0, debugX1, debugY1)
+		variablesView.Title = "Variables"
+		fmt.Fprintf(variablesView, "v:  %d %d X %d %d", variablesX0, variablesY0, variablesX1, variablesY1)
 	}
 	return nil
 }
