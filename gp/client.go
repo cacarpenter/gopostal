@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/cacarpenter/gopostal/postman"
+	"io"
 	"net/http"
 	"regexp"
 	"strings"
@@ -14,7 +15,11 @@ func CallRequest(pmreq *postman.Request) error {
 
 	interUrl := replaceVariables(pmreq.Url.Raw)
 	httpClient := http.Client{}
-	httpReq, err := http.NewRequest(pmreq.Method, interUrl, strings.NewReader(pmreq.Body.Raw))
+	var body io.Reader
+	if pmreq.Body != nil {
+		body = strings.NewReader(pmreq.Body.Raw)
+	}
+	httpReq, err := http.NewRequest(pmreq.Method, interUrl, body)
 	if err != nil {
 		return err
 	}
