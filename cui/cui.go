@@ -128,7 +128,10 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		ui.itemTree.Layout(treeView)
+		// investigate how this is happening
+		if ui.itemTree != nil {
+			ui.itemTree.Layout(treeView)
+		}
 	}
 	if requestView, err := g.SetView(requestViewName, requestX0, requestY0, requestX1, requestY1); err != nil {
 		if err != gocui.ErrUnknownView {
