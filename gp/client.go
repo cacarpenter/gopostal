@@ -23,6 +23,9 @@ func CallRequest(pmreq *postman.Request) error {
 	if err != nil {
 		return err
 	}
+	for _, pmHeader := range pmreq.Header {
+		httpReq.Header.Add(pmHeader.Key, pmHeader.Value)
+	}
 
 	httpResp, err := httpClient.Do(httpReq)
 	if err != nil {
