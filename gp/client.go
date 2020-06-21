@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func CallRequest(pmreq *postman.Request) error {
+func CallRequest(pmreq *postman.Request) (*string, error) {
 	fmt.Println("call", replaceVariables(pmreq.Url.Raw))
 
 	interUrl := replaceVariables(pmreq.Url.Raw)
@@ -21,7 +21,7 @@ func CallRequest(pmreq *postman.Request) error {
 	}
 	httpReq, err := http.NewRequest(pmreq.Method, interUrl, body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	for _, pmHeader := range pmreq.Header {
 		httpReq.Header.Add(pmHeader.Key, pmHeader.Value)
@@ -29,10 +29,16 @@ func CallRequest(pmreq *postman.Request) error {
 
 	httpResp, err := httpClient.Do(httpReq)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	fmt.Println(httpResp.StatusCode)
+	// fmt.Println(httpResp.StatusCode)
+
+	// process events - need some rules around when to do this but for now just look for some basic valid responses
+	if httpResp.StatusCode == 200 || httpResp.StatusCode == 201 {
+
+	}
+
 	return nil
 }
 

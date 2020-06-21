@@ -15,10 +15,21 @@ func (rw *RequestWidget) Layout(v *gocui.View) {
 	if rw.collection == nil || rw.collection.Request == nil {
 		return
 	}
-	fmt.Fprintln(v, rw.collection.Name)
 	r := rw.collection.Request
-	fmt.Fprintf(v, "%s - %s\n", r.Method, r.Url.Raw)
+	fmt.Fprintln(v, r.Method, rw.collection.Name)
+	fmt.Fprintf(v, "%s\n", r.Url.Raw)
+	fmt.Fprintln(v, "------------------------------------")
+	for _, h := range r.Header {
+		fmt.Fprintf(v, "\t%s - %s\n", h.Key, h.Value)
+	}
+	fmt.Fprintln(v, "------------------------------------")
 	if r.Body != nil {
 		fmt.Fprintln(v, r.Body.Raw)
+	}
+	fmt.Fprintln(v, "---------- Script ------------------")
+	for _, ev := range rw.collection.Events {
+		for _, sl := range ev.Script.Lines {
+			fmt.Fprintln(v, sl)
+		}
 	}
 }

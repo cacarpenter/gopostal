@@ -59,9 +59,7 @@ func (ui *ConsoleUI) Open(collection, environment string) {
 
 	// show all the root items by default
 	pmColl.ToggleExpanded()
-	ui.itemTree = NewItemTree(pmColl)
-	ui.requestWidget = &RequestWidget{pmColl}
-	ui.variablesWidget = &VariablesWidget{}
+	ui.Init(pmColl)
 
 	if len(environment) > 0 {
 		env, err := postman.ParseEnv(environment)
@@ -73,6 +71,12 @@ func (ui *ConsoleUI) Open(collection, environment string) {
 		}
 	}
 	ui.Run()
+}
+
+func (ui *ConsoleUI) Init(pmColl *postman.Collection) {
+	ui.itemTree = NewItemTree(pmColl)
+	ui.requestWidget = &RequestWidget{pmColl}
+	ui.variablesWidget = &VariablesWidget{}
 }
 
 /*

@@ -7,28 +7,31 @@ const (
 )
 
 type Header struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-	Type  string `json:"type"`
+	Key      string `json:"key"`
+	Value    string `json:"value"`
+	Type     string `json:"type"`
+	Warning  string `json:"warning"`
+	Disabled bool   `json:"disabled"`
 }
 
-type Query struct {
+type KeyValue struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
 type Url struct {
-	Raw   string   `json:"raw"`
-	Host  []string `json:"host"`
-	Path  []string `json:"path"`
-	Query []Query  `json:"query"`
+	Raw   string     `json:"raw"`
+	Host  []string   `json:"host"`
+	Path  []string   `json:"path"`
+	Query []KeyValue `json:"query"`
 }
 
 type Request struct {
-	Method string   `json:"method"`
-	Header []Header `json:"header"`
-	Url    Url      `json:"url"`
-	Body   *Body    `json:"body"`
+	Method    string     `json:"method"`
+	Header    []Header   `json:"header"`
+	Url       Url        `json:"url"`
+	Body      *Body      `json:"body"`
+	Variables []KeyValue `json:"variable"`
 }
 
 type Body struct {
