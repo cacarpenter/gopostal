@@ -35,6 +35,29 @@ func (s *Session) Update(env *postman.Environment, overwrite bool) {
 	}
 }
 
-func (s *Session) Vars() map[string]string {
+func (s *Session) Map() map[string]string {
 	return s.variables
+}
+
+func (s *Session) Array() [][]string {
+	// do some ordering?
+	array := make([][]string, len(s.variables))
+	i := 0
+	for k, v := range s.variables {
+		array[i] = make([]string, 2)
+		array[i][0] = k
+		array[i][1] = v
+		i++
+	}
+	return array
+}
+
+func (s *Session) Names() []string {
+	n := make([]string, len(s.variables))
+	i := 0
+	for k := range s.variables {
+		n[i] = k
+		i++
+	}
+	return n
 }

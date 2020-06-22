@@ -93,40 +93,27 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 	*/
 
 	// golden-ish ratio
-	remainder := int(float64(maxX) - float64(maxY)*2.5)
+	remainder := int(float64(maxX) - float64(maxY)*2)
+
+	// collection view
 	treeX0 := 0
 	treeY0 := 0
 	treeX1 := remainder - 1
-	treeY1 := maxY - 1
+	treeY1 := maxY / 2 - 1
 
 	requestX0 := remainder
 	requestY0 := 0
 	requestX1 := maxX - 1
 	requestY1 := maxY - 1
 
-	// test values
-	/*
-		mainWidth := 100
-
-		treeX0 := 0
-		treeY0 := 0
-		treeX1 := maxX - mainWidth - 1
-		treeY1 := maxY - 1
-
-		requestX0 := maxX - mainWidth
-		requestY0 := 0
-		requestX1 := maxX - 1
-		requestY1 := maxY/2 - 1
-	*/
-
-	variablesX0 := maxX - remainder
+	variablesX0 := 0
 	variablesY0 := maxY / 2
-	variablesX1 := maxX - 1
+	variablesX1 := remainder - 1
 	variablesY1 := maxY - 1
 
 	if treeView, err := g.SetView(treeViewName, treeX0, treeY0, treeX1, treeY1); err != nil {
 		treeView.Title = "Tree"
-		// treeView.Highlight = true
+		treeView.Highlight = true
 		// treeView.Autoscroll = true
 		// treeView.SetCursor(0, 0)
 		if err != gocui.ErrUnknownView {

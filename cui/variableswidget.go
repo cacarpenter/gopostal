@@ -1,9 +1,9 @@
 package cui
 
 import (
-	"fmt"
 	"github.com/cacarpenter/gopostal/gp"
 	"github.com/jroimartin/gocui"
+	"github.com/olekukonko/tablewriter"
 )
 
 type VariablesWidget struct {
@@ -11,8 +11,12 @@ type VariablesWidget struct {
 
 func (vw *VariablesWidget) Layout(view *gocui.View) {
 	sess := gp.CurrentSession()
-	fmt.Fprintln(view, len(sess.Vars()))
-	for key, val := range sess.Vars() {
-		fmt.Fprintln(view, key, val)
+
+	table := tablewriter.NewWriter(view)
+	table.SetHeader([]string{"Name", "Value"})
+
+	for _, v := range sess.Array() {
+		table.Append(v)
 	}
+	table.Render()
 }

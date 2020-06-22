@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cacarpenter/gopostal/postman"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
@@ -15,11 +16,11 @@ func CallRequest(pmreq *postman.Request) (*string, error) {
 
 	interUrl := replaceVariables(pmreq.Url.Raw)
 	httpClient := http.Client{}
-	var body io.Reader
+	var sendBody io.Reader
 	if pmreq.Body != nil {
-		body = strings.NewReader(pmreq.Body.Raw)
+		sendBody = strings.NewReader(pmreq.Body.Raw)
 	}
-	httpReq, err := http.NewRequest(pmreq.Method, interUrl, body)
+	httpReq, err := http.NewRequest(pmreq.Method, interUrl, sendBody)
 	if err != nil {
 		return nil, err
 	}
@@ -31,15 +32,22 @@ func CallRequest(pmreq *postman.Request) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// fmt.Println(httpResp.StatusCode)
+	defer httpResp.Body.Close()
 
 	// process events - need some rules around when to do this but for now just look for some basic valid responses
-	if httpResp.StatusCode == 200 || httpResp.StatusCode == 201 {
-
+	if httpResp.StatusCode != 200 && httpResp.StatusCode != 201 {
+		// TODO return sendBody
+		return nil, fmt.Errorf("Got %d as response", httpResp.StatusCode)
 	}
 
-	return nil
+	rcvBody, err := ioutil.ReadAll(httpReq.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	strRcvBody := string(rcvBody)
+
+	return &strRcvBody, nil
 }
 
 func replaceVariables(raw string) string {
