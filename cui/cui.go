@@ -93,28 +93,33 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 	*/
 
 	// golden-ish ratio
-	remainder := int(float64(maxX) - float64(maxY)*2)
+	remainder := int(float64(maxX) - float64(maxY)*2.4)
 
 	// collection view
 	treeX0 := 0
 	treeY0 := 0
 	treeX1 := remainder - 1
-	treeY1 := maxY / 2 - 1
-
-	requestX0 := remainder
-	requestY0 := 0
-	requestX1 := maxX - 1
-	requestY1 := maxY - 1
+	treeY1 := maxY/2 - 1
 
 	variablesX0 := 0
 	variablesY0 := maxY / 2
 	variablesX1 := remainder - 1
 	variablesY1 := maxY - 1
 
+	requestX0 := remainder
+	requestY0 := 0
+	requestX1 := maxX - 1
+	requestY1 := maxY - (maxY / 4) - 1
+
+	debugX0 := remainder
+	debugY0 := maxY - (maxY / 4)
+	debugX1 := maxX - 1
+	debugY1 := maxY - 1
+
 	if treeView, err := g.SetView(treeViewName, treeX0, treeY0, treeX1, treeY1); err != nil {
 		treeView.Title = "Tree"
 		treeView.Highlight = true
-		// treeView.Autoscroll = true
+		treeView.Autoscroll = true
 		// treeView.SetCursor(0, 0)
 		if err != gocui.ErrUnknownView {
 			return err
@@ -138,6 +143,12 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 		variablesView.Title = "Variables"
 		// fmt.Fprintf(variablesView, "v:  %d %d X %d %d", variablesX0, variablesY0, variablesX1, variablesY1)
 		ui.variablesWidget.Layout(variablesView)
+	}
+	if debugView, err := g.SetView(debugViewName, debugX0, debugY0, debugX1, debugY1); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		debugView.Title = "Debug"
 	}
 	return nil
 }

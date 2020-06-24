@@ -14,6 +14,7 @@ func (vw *VariablesWidget) Layout(view *gocui.View) {
 
 	table := tablewriter.NewWriter(view)
 	table.SetHeader([]string{"Name", "Value"})
+	table.SetBorder(false)
 
 	for _, v := range sess.Array() {
 		table.Append(v)

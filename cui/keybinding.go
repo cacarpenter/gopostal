@@ -78,9 +78,13 @@ func (ui *ConsoleUI) toggleExpand(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (ui *ConsoleUI) callRequest(g *gocui.Gui, v *gocui.View) error {
+	debug, err := g.View(debugViewName)
+	if err != nil {
+		return err
+	}
 	// TODO move this logic somewhere else
 	if ui.itemTree.selectedItem != nil && ui.itemTree.selectedItem.Request != nil {
-		response, err := gp.CallRequest(ui.itemTree.selectedItem.Request)
+		response, err := gp.CallRequest(ui.itemTree.selectedItem.Request, debug)
 
 		if err != nil {
 			return nil
