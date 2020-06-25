@@ -35,7 +35,7 @@ func CallRequest(pmreq *postman.Request, writer io.Writer) (*string, error) {
 	}
 	defer httpResp.Body.Close()
 
-	rcvBody, err := ioutil.ReadAll(httpReq.Body)
+	rcvBody, err := ioutil.ReadAll(httpResp.Body)
 	if err != nil {
 		fmt.Fprintln(writer, "Bad Read")
 		return nil, err
@@ -48,9 +48,8 @@ func CallRequest(pmreq *postman.Request, writer io.Writer) (*string, error) {
 		return nil, fmt.Errorf("Got %d as response", httpResp.StatusCode)
 	}
 
-
 	strRcvBody := string(rcvBody)
-	fmt.Println(writer, strRcvBody)
+	fmt.Fprintln(writer, strRcvBody)
 
 	return &strRcvBody, nil
 }

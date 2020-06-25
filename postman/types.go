@@ -1,5 +1,7 @@
 package postman
 
+import "bytes"
+
 const (
 	ENV_EXT      = "postman_environment.json"
 	COLL_EXT     = "postman_collection.json"
@@ -52,4 +54,13 @@ type Script struct {
 	Id    string   `json:"id"`
 	Lines []string `json:"exec"`
 	Type  string   `json:"type"`
+}
+
+func (s *Script) String() string {
+	var buf bytes.Buffer
+	for _, l := range s.Lines {
+		buf.WriteString(l)
+		buf.WriteString("\n")
+	}
+	return buf.String()
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cacarpenter/gopostal/postman"
 	"github.com/jroimartin/gocui"
+	"github.com/olekukonko/tablewriter"
 )
 
 type RequestWidget struct {
@@ -16,22 +17,25 @@ func (rw *RequestWidget) Layout(v *gocui.View) {
 		return
 	}
 	r := rw.collection.Request
-	fmt.Fprintln(v, r.Method, rw.collection.Name)
+	fmt.Fprintln(v, colorCyan, r.Method, colorReset, rw.collection.Name)
 	fmt.Fprintf(v, "%s\n", r.Url.Raw)
-	fmt.Fprintln(v, colorWhite, "------------------------------------", colorReset)
+
+	headers := tablewriter.NewWriter(v)
+	headers.SetHeader([]string{"Key", "Value"})
+
 	for _, h := range r.Header {
-		fmt.Fprintf(v, "\t%s - %s\n", h.Key, h.Value)
+		headers.Append([]string{h.Key, h.Value})
 	}
-	fmt.Fprintln(v, colorWhite, "------------------------------------", colorReset)
+	headers.Render()
 	if r.Body != nil {
 		fmt.Fprintln(v, r.Body.Raw)
 	}
 	fmt.Fprintln(v, colorYellow, "---------- Script ------------------", colorReset)
 	fmt.Fprint(v, colorBlue)
 	for _, ev := range rw.collection.Events {
-		for _, sl := range ev.Script.Lines {
-			fmt.Fprintln(v, sl)
+		for _, script := range ev.Script.Lines {
+			fmt.Fprintln(v, script)
 		}
 	}
-	fmt.Fprint(v, colorReset)
+	fmt.Fprintln(v, colorReset)
 }

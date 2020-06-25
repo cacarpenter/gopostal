@@ -96,7 +96,7 @@ func (ui *ConsoleUI) callRequest(g *gocui.Gui, v *gocui.View) error {
 				buf.WriteString(l)
 				buf.WriteString("\n")
 			}
-			gp.RunJavaScript(buf.String(), *response)
+			gp.RunJavaScript(buf.String(), *response, debug)
 		}
 	}
 	return nil
