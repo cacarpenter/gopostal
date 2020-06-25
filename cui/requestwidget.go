@@ -2,7 +2,9 @@ package cui
 
 import (
 	"fmt"
+	"github.com/cacarpenter/gopostal/gp"
 	"github.com/cacarpenter/gopostal/postman"
+	"github.com/cacarpenter/gopostal/util"
 	"github.com/jroimartin/gocui"
 	"github.com/olekukonko/tablewriter"
 )
@@ -16,15 +18,19 @@ func (rw *RequestWidget) Layout(v *gocui.View) {
 	if rw.collection == nil || rw.collection.Request == nil {
 		return
 	}
+
+	currVals := gp.CurrentSession().Map()
+
 	r := rw.collection.Request
 	fmt.Fprintln(v, colorCyan, r.Method, colorReset, rw.collection.Name)
 	fmt.Fprintf(v, "%s\n", r.Url.Raw)
+	fmt.Fprintf(v, "%s%s%s\n", colorPurple, util.ReplaceVariables(r.Url.Raw, currVals), colorReset)
 
 	headers := tablewriter.NewWriter(v)
-	headers.SetHeader([]string{"Key", "Value"})
+	headers.SetHeader([]string{"Key", "Value", "Send Value"})
 
 	for _, h := range r.Header {
-		headers.Append([]string{h.Key, h.Value})
+		headers.Append([]string{h.Key, h.Value, util.ReplaceVariables(h.Value, currVals)})
 	}
 	headers.Render()
 	if r.Body != nil {
