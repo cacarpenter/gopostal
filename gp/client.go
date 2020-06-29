@@ -13,7 +13,7 @@ import (
 
 func (app *GoPostal) CallRequest(pmreq *postman.Request, writer io.Writer) (*string, error) {
 	interUrl := util.ReplaceVariables(pmreq.Url.Raw, app.session.variables)
-	log.Println("call", interUrl)
+	app.logger.Println("calling", interUrl)
 	httpClient := http.Client{}
 	var sendBody io.Reader
 	if pmreq.Body != nil {
@@ -21,7 +21,7 @@ func (app *GoPostal) CallRequest(pmreq *postman.Request, writer io.Writer) (*str
 	}
 	httpReq, err := http.NewRequest(pmreq.Method, interUrl, sendBody)
 	if err != nil {
-		log.Println("Bad Req")
+		app.logger.Println("Bad Req")
 		return nil, err
 	}
 	for _, pmHeader := range pmreq.Header {
@@ -37,7 +37,7 @@ func (app *GoPostal) CallRequest(pmreq *postman.Request, writer io.Writer) (*str
 
 	httpResp, err := httpClient.Do(httpReq)
 	if err != nil {
-		fmt.Fprintln(writer, "Bad Resp")
+		app.logger.Println(writer, "Bad Resp")
 		return nil, err
 	}
 	defer httpResp.Body.Close()

@@ -1,7 +1,7 @@
 package gp
 
 import (
-	"fmt"
+	"bytes"
 	"github.com/cacarpenter/gopostal/cui"
 	"github.com/cacarpenter/gopostal/postman"
 	"log"
@@ -38,11 +38,32 @@ func New() *GoPostal {
 	app := GoPostal{}
 	app.initLogging()
 	app.ui = cui.NewConsoleUI(app.logger)
+	app.ui.SetOnExec(app.ExecCurrentSelection)
 	app.session = NewSession()
 	app.environments = make([]*postman.Environment, 1)
 	app.collections = make([]*postman.Collection, 1)
 
 	return &app
+}
+
+func (app *GoPostal) ExecCurrentSelection() {
+	pmColl := app.ui.SelectedCollection()
+	if pmColl != nil && pmColl.Request != nil {
+		response, err := app.CallRequest(pmColl.Request, app.logger.Writer())
+
+		if err != nil {
+			app.logger.Panicln(err)
+		}
+
+		for _, ev := range pmColl.Events {
+			var buf bytes.Buffer
+			for _, l := range ev.Script.Lines {
+				buf.WriteString(l)
+				buf.WriteString("\n")
+			}
+			app.RunJavaScript(buf.String(), *response)
+		}
+	}
 }
 
 func (app *GoPostal) SetPostmanEnvironments(environments []*postman.Environment) {
@@ -64,7 +85,6 @@ func (app *GoPostal) Run() {
 }
 
 func (app *GoPostal) Stop() {
+	app.logger.Println("Bye")
 	app.logFile.Close()
-	// app.logger.
-	fmt.Println("Bye")
 }

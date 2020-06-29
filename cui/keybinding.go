@@ -106,23 +106,7 @@ func (ui *ConsoleUI) expandAll(g *gocui.Gui, v *gocui.View) error {
 
 func (ui *ConsoleUI) callRequest(g *gocui.Gui, v *gocui.View) error {
 	ui.Logger.Println("callRequest")
-	/*
-	if ui.itemTree.selectedItem != nil && ui.itemTree.selectedItem.Request != nil {
-		response, err := gp.CallRequest(ui.itemTree.selectedItem.Request, debug)
+	ui.execFunc()
 
-		if err != nil {
-			return nil
-		}
-
-		for _, ev := range ui.itemTree.selectedItem.Events {
-			var buf bytes.Buffer
-			for _, l := range ev.Script.Lines {
-				buf.WriteString(l)
-				buf.WriteString("\n")
-			}
-			gp.RunJavaScript(buf.String(), *response)
-		}
-	}
-	 */
 	return nil
 }

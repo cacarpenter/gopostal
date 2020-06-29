@@ -31,6 +31,7 @@ type ConsoleUI struct {
 	requestWidget   *RequestWidget
 	variablesWidget *VariablesWidget
 	*log.Logger
+	execFunc func()
 }
 
 func NewConsoleUI(logger *log.Logger) *ConsoleUI {
@@ -181,4 +182,12 @@ func (ui *ConsoleUI) SetPostmanCollections(pcs []*postman.Collection) {
 
 func (ui *ConsoleUI) UpdateVariables(vars map[string]string) {
 	ui.variablesWidget.SetVariables(util.Map2Array(vars))
+}
+
+func (ui *ConsoleUI) SetOnExec( f func()) {
+	ui.execFunc = f
+}
+
+func (ui *ConsoleUI) SelectedCollection() *postman.Collection {
+	return ui.itemTree.selected
 }
