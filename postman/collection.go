@@ -3,7 +3,10 @@ package postman
 import (
 	"encoding/json"
 	"io/ioutil"
+	"strings"
 )
+
+const POSTMAN_COLLECTION_SUFFIX = ".postman_collection.json"
 
 type CollectionInfo struct {
 	PostmanId string `json:"_postman_id"`
@@ -23,6 +26,19 @@ type Collection struct {
 
 func (c *Collection) Expanded() bool {
 	return len(c.Children) > 0 && c.expanded
+}
+
+func (c *Collection) SetExpanded(e bool) {
+	c.expanded = e
+}
+
+func (c *Collection) Expand(recursive bool) {
+	c.expanded = true
+	if recursive {
+		for _, ch := range c.Children {
+			ch.Expand(recursive)
+		}
+	}
 }
 
 func (c *Collection) ToggleExpanded() bool {
@@ -106,4 +122,15 @@ func (c *Collection) ParentName() string {
 		return c.parent.Name
 	}
 	return ""
+}
+
+func (c *Collection) Label() string {
+	if c.Info != nil {
+		return c.Info.Name
+	}
+	return c.Name
+}
+
+func IsCollectionFile(filename string) bool {
+	return strings.HasSuffix(filename, POSTMAN_COLLECTION_SUFFIX)
 }

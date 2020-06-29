@@ -1,8 +1,7 @@
 package cui
 
 import (
-	"bytes"
-	"github.com/cacarpenter/gopostal/gp"
+	"fmt"
 	"github.com/jroimartin/gocui"
 	"log"
 )
@@ -29,10 +28,20 @@ func (ui *ConsoleUI) keybindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", 'e', gocui.ModNone, ui.toggleExpand); err != nil {
 		log.Panicln(err)
 	}
-
+	if err := g.SetKeybinding("", 'E', gocui.ModNone, ui.expandAll); err != nil {
+		log.Panicln(err)
+	}
 	if err := g.SetKeybinding("", gocui.KeyEnter, gocui.ModNone, ui.callRequest); err != nil {
 		log.Panicln(err)
 	}
+	/*
+	if err := g.SetKeybinding("", gocui.KeyF1, gocui.ModNone, func(gui *gocui.Gui, view *gocui.View) error {
+		gui.SetCurrentView(treeViewName)
+		return nil
+	}); err != nil {
+		log.Panicln(err)
+	}
+	 */
 
 	return nil
 }
@@ -40,22 +49,30 @@ func (ui *ConsoleUI) keybindings(g *gocui.Gui) error {
 func (ui *ConsoleUI) updateTree(g *gocui.Gui, f func(it *ItemTree)) error {
 	tv, err := g.View(treeViewName)
 	if err != nil {
+		ui.Logger.Println("Error getting tree view", err)
 		return err
 	}
-	if ui.itemTree != nil {
-		f(ui.itemTree)
-		ui.itemTree.Layout(tv)
-	}
+	f(ui.itemTree)
+	ui.itemTree.Layout(tv)
 	rv, err := g.View(requestViewName)
 	if err != nil {
 		return err
 	}
-	ui.requestWidget.collection = ui.itemTree.selectedItem
+	ui.requestWidget.collection = ui.itemTree.selected
 	ui.requestWidget.Layout(rv)
 	return nil
 }
 
 func (ui *ConsoleUI) cursorDown(g *gocui.Gui, v *gocui.View) error {
+	if v != nil {
+		fmt.Fprintln(v, "v is not null!")
+	}
+	if g != nil {
+		cv := g.CurrentView()
+		if cv != nil {
+			fmt.Fprintln(cv, "this is the current non nil view")
+		}
+	}
 	err := ui.updateTree(g, func(it *ItemTree) {
 		it.MoveDown()
 	})
@@ -66,6 +83,10 @@ func (ui *ConsoleUI) cursorDown(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (ui *ConsoleUI) cursorUp(g *gocui.Gui, v *gocui.View) error {
+	if v != nil {
+		cx, cy := v.Cursor()
+		fmt.Fprintf(v, "%d %d\n", cx, cy)
+	}
 	return ui.updateTree(g, func(it *ItemTree) {
 		it.MoveUp()
 	})
@@ -77,12 +98,15 @@ func (ui *ConsoleUI) toggleExpand(g *gocui.Gui, v *gocui.View) error {
 	})
 }
 
+func (ui *ConsoleUI) expandAll(g *gocui.Gui, v *gocui.View) error {
+	return ui.updateTree(g, func(it *ItemTree) {
+		it.ExpandAll()
+	})
+}
+
 func (ui *ConsoleUI) callRequest(g *gocui.Gui, v *gocui.View) error {
-	debug, err := g.View(debugViewName)
-	if err != nil {
-		return err
-	}
-	// TODO move this logic somewhere else
+	ui.Logger.Println("callRequest")
+	/*
 	if ui.itemTree.selectedItem != nil && ui.itemTree.selectedItem.Request != nil {
 		response, err := gp.CallRequest(ui.itemTree.selectedItem.Request, debug)
 
@@ -96,9 +120,9 @@ func (ui *ConsoleUI) callRequest(g *gocui.Gui, v *gocui.View) error {
 				buf.WriteString(l)
 				buf.WriteString("\n")
 			}
-			gp.RunJavaScript(buf.String(), *response, debug)
+			gp.RunJavaScript(buf.String(), *response)
 		}
 	}
+	 */
 	return nil
 }
-

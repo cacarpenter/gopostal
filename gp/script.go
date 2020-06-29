@@ -1,9 +1,8 @@
 package gp
 
 import (
-	"fmt"
 	"github.com/robertkrimen/otto"
-	"io"
+	"log"
 )
 
 
@@ -20,11 +19,11 @@ pm.response.json = function() { return JSON.parse(responseBody); };
 pm.test = function(name, testfunc) { testfunc(); };
 `
 
-func RunJavaScript(script, responseBody string, dbgWriter io.Writer) {
+func RunJavaScript(script, responseBody string) {
 	vm := otto.New()
 
 	if _, err := vm.Run(postmanBoostrapJs); err != nil {
-		fmt.Fprintln(dbgWriter, "postman bootstrap returned error", err)
+		log.Println("postman bootstrap returned error", err)
 		return
 	}
 	vm.Set("responseBody", responseBody)
@@ -33,27 +32,30 @@ func RunJavaScript(script, responseBody string, dbgWriter io.Writer) {
 	// TODO wrap in unsafe guards
 	runVal, err := vm.Run(script)
 	if err != nil {
-		fmt.Fprintln(dbgWriter, "Script returned error", err)
+		log.Println("Script returned error", err)
 		return
 	}
-	fmt.Fprintf(dbgWriter, "script runval %q\n", runVal)
+	log.Printf("script runval %q\n", runVal)
 
 	envVal, err := vm.Get("env")
 	if err != nil {
-		fmt.Fprintln(dbgWriter, "get env error", err)
+		log.Println( "get env error", err)
 		return
 	}
 	envObj := envVal.Object()
+	log.Println(envObj)
 
 	// TODO move this logic, dont access the session here
+	/*
 	session := CurrentSession()
 	for _, envKey := range envObj.Keys() {
 		envVal, valErr := envObj.Get(envKey)
 		if valErr != nil {
 			continue
 		}
-		fmt.Fprintf(dbgWriter, "%s -> %s\n", envKey, envVal)
+		log.Printf("%s -> %s\n", envKey, envVal)
 		session.Put(envKey, envVal.String())
 	}
+	 */
 	// TODO do something to trigger rerender of variables view
 }

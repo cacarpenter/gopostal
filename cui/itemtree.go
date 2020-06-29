@@ -4,90 +4,111 @@ import (
 	"fmt"
 	"github.com/cacarpenter/gopostal/postman"
 	"github.com/jroimartin/gocui"
+	"log"
 )
 
 // const SELECT_COLOR = colorGreen
 
 type ItemTree struct {
-	collection *postman.Collection
+	collections []*postman.Collection
 
 	// which item in the tree is selected
-	selectedItem *postman.Collection
+	selected *postman.Collection
+
+	*log.Logger
 }
 
+/*
 func NewItemTree(pc *postman.Collection) *ItemTree {
 	// the root item is the selected item
 	it := ItemTree{pc, pc}
 	return &it
 }
+ */
 
 func (it *ItemTree) Layout(v *gocui.View) {
-	coll := it.collection
-	maxItemNameLength := 0
-	for _, n := range it.collection.Children {
-		if len(n.Name) > maxItemNameLength {
-			maxItemNameLength = len(n.Name)
-		}
-	}
-	maxItemNameLength = maxItemNameLength/2 + 1
-
 	v.Clear()
-	printCollection(v, "", coll)
+	for _, coll := range it.collections {
+		maxItemNameLength := 0
+		for _, n := range coll.Children {
+			if len(n.Name) > maxItemNameLength {
+				maxItemNameLength = len(n.Name)
+			}
+		}
+		maxItemNameLength = maxItemNameLength/2 + 1
+		// cx, cy := v.Cursor()
+		// fmt.Fprintln(v, cx, cy)
+		printCollection(v, "", coll)
+	}
 }
 
 func (it *ItemTree) MoveUp() {
+	it.Logger.Println("moveUp")
 	var nextItem *postman.Collection
-	prevSib := it.selectedItem.PreviousSibling()
+	prevSib := it.selected.PreviousSibling()
 	if prevSib != nil {
 		if prevSib.Expanded() {
 			nextItem = prevSib.Children[len(prevSib.Children)-1]
 		} else {
 			nextItem = prevSib
 		}
-	} else if it.selectedItem.Parent() != nil {
-		if it.selectedItem.Parent().Expanded() {
-			nextItem = it.selectedItem.Parent()
+	} else if it.selected.Parent() != nil {
+		if it.selected.Parent().Expanded() {
+			nextItem = it.selected.Parent()
 		} else {
-			parentSib := it.selectedItem.Parent().PreviousSibling()
+			parentSib := it.selected.Parent().PreviousSibling()
 			if parentSib != nil {
 				nextItem = parentSib
 			}
 		}
 	}
 	if nextItem != nil {
-		it.selectedItem.SetSelected(false)
+		it.selected.SetSelected(false)
 		nextItem.SetSelected(true)
-		it.selectedItem = nextItem
+		it.selected = nextItem
+	} else {
+		it.Logger.Println("MoveUp: No nextItem")
 	}
 }
 
 func (it *ItemTree) MoveDown() {
+	it.Logger.Println("moveDown")
 	var nextItem *postman.Collection
-	if it.selectedItem.Expanded() {
-		if len(it.selectedItem.Children) > 0 {
-			nextItem = it.selectedItem.Children[0]
+	if it.selected.Expanded() {
+		if len(it.selected.Children) > 0 {
+			nextItem = it.selected.Children[0]
 		}
 	} else {
-		nextSib := it.selectedItem.NextSibling()
+		nextSib := it.selected.NextSibling()
 		if nextSib != nil {
 			nextItem = nextSib
-		} else if it.selectedItem.Parent() != nil {
-			parentSib := it.selectedItem.Parent().NextSibling()
+		} else if it.selected.Parent() != nil {
+			parentSib := it.selected.Parent().NextSibling()
 			if parentSib != nil {
 				nextItem = parentSib
 			}
 		}
 	}
 	if nextItem != nil {
-		it.selectedItem.SetSelected(false)
+		it.Logger.Println("Setting next item to ", nextItem.Label())
+		it.selected.SetSelected(false)
 		nextItem.SetSelected(true)
-		it.selectedItem = nextItem
+		it.selected = nextItem
+	} else {
+		it.Logger.Println("moveDown: No nextItem")
+	}
+}
+
+func (it *ItemTree) ExpandAll() {
+	for _, pmColl := range it.collections {
+		pmColl.Expand(true)
 	}
 }
 
 func (it *ItemTree) ToggleExpanded() {
-	if it.selectedItem != nil {
-		it.selectedItem.ToggleExpanded()
+	it.Logger.Println("ToggleExpanded")
+	if it.selected != nil {
+		it.selected.ToggleExpanded()
 	}
 }
 
@@ -122,3 +143,4 @@ func printCollection(v *gocui.View, pad string, pci *postman.Collection) {
 		}
 	}
 }
+

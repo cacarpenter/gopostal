@@ -6,14 +6,14 @@ import (
 	"github.com/cacarpenter/gopostal/util"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 )
 
-func CallRequest(pmreq *postman.Request, writer io.Writer) (*string, error) {
-	sess := CurrentSession()
-	interUrl := util.ReplaceVariables(pmreq.Url.Raw, sess.variables)
-	fmt.Fprintln(writer, "call", interUrl)
+func (app *GoPostal) CallRequest(pmreq *postman.Request, writer io.Writer) (*string, error) {
+	interUrl := util.ReplaceVariables(pmreq.Url.Raw, app.session.variables)
+	log.Println("call", interUrl)
 	httpClient := http.Client{}
 	var sendBody io.Reader
 	if pmreq.Body != nil {
@@ -21,11 +21,11 @@ func CallRequest(pmreq *postman.Request, writer io.Writer) (*string, error) {
 	}
 	httpReq, err := http.NewRequest(pmreq.Method, interUrl, sendBody)
 	if err != nil {
-		fmt.Fprintln(writer, "Bad Req")
+		log.Println("Bad Req")
 		return nil, err
 	}
 	for _, pmHeader := range pmreq.Header {
-		headerVal := util.ReplaceVariables(pmHeader.Value, sess.variables)
+		headerVal := util.ReplaceVariables(pmHeader.Value, app.session.variables)
 		headerKey := pmHeader.Key
 		// TODO this is something postman specific? We need this to be the Authorization Header with a Bearer token
 		if headerKey == "Bearer" {
@@ -44,7 +44,7 @@ func CallRequest(pmreq *postman.Request, writer io.Writer) (*string, error) {
 
 	rcvBody, err := ioutil.ReadAll(httpResp.Body)
 	if err != nil {
-		fmt.Fprintln(writer, "Bad Read")
+		log.Println("Error Reading Bad Read")
 		return nil, err
 	}
 

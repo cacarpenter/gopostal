@@ -2,7 +2,6 @@ package gp
 
 import (
 	"github.com/cacarpenter/gopostal/postman"
-	"sync"
 )
 
 type Session struct {
@@ -17,14 +16,8 @@ func (s *Session) Get(key string) string {
 	return s.variables[key]
 }
 
-var singleton *Session
-var once sync.Once
-
-func CurrentSession() *Session {
-	once.Do(func() {
-		singleton = &Session{make(map[string]string)}
-	})
-	return singleton
+func NewSession() *Session {
+	return &Session{make(map[string]string)}
 }
 
 func (s *Session) Update(env *postman.Environment, overwrite bool) {

@@ -3,43 +3,53 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/cacarpenter/gopostal/cui"
+	"github.com/cacarpenter/gopostal/gp"
 	"github.com/cacarpenter/gopostal/postman"
 	"github.com/cacarpenter/gopostal/util"
+	"log"
 )
 
 func main() {
-	envFlag := flag.String("env", "local.postman_environment.json", "Specify postman environment")
+	// envFlag := flag.String("env", "local.postman_environment.json", "Specify postman environment")
 	flag.Parse()
 
-	if len(flag.Args()) < 2 {
-		c := cui.ConsoleUI{}
-		c.Run()
+
+	if len(flag.Args()) < 0 {
+		fmt.Println("Need to specify a file(s) for now")
 		return
 	}
 
-	fmt.Println(flag.Args())
-	cmd := flag.Arg(0)
-	subargs := flag.Args()[1:]
+	app := gp.New()
 
-	// fmt.Printf("running %q - %q\n", cmd, subargs)
-
-	switch cmd {
-	case "diff":
-		runDiff(subargs)
-	case "print", "show":
-		printColl(subargs)
-	case "open":
-		c := cui.ConsoleUI{}
-		c.Open(subargs[0], *envFlag)
-	default:
-		fmt.Println("Unknown command", cmd)
+	var collections []*postman.Collection
+	var environments []*postman.Environment
+	for _, filename := range flag.Args() {
+		if postman.IsEnvironmentFile(filename) {
+			pmEnv, err := postman.ParseEnv(filename)
+			if err == nil {
+				environments = append(environments, pmEnv)
+			} else {
+				log.Panicln("Bad postman env", filename, err)
+			}
+		} else if postman.IsCollectionFile(filename) {
+			pmColl, err := postman.ParseCollection(filename)
+			if err == nil {
+				collections = append(collections, pmColl)
+			} else {
+				log.Panicln("Bad postman collection", filename, err)
+			}
+		}
 	}
+
+	app.SetPostmanCollections(collections)
+	app.SetPostmanEnvironments(environments)
+	app.Run()
+	app.Stop()
 }
 
 func printColl(subargs []string) {
 	if len(subargs) < 1 {
-		fmt.Println("gopostal print filename")
+		log.Println("gopostal print filename")
 		return
 	}
 	coll, err := postman.ParseCollection(subargs[0])
@@ -49,9 +59,10 @@ func printColl(subargs []string) {
 	postman.Print(coll)
 }
 
+
 func runDiff(subargs []string) {
 	if len(subargs) < 2 {
-		fmt.Println("gopostal diff filename1 filename2")
+		log.Println("gopostal diff filename1 filename2")
 		return
 	}
 	coll1, err := postman.ParseCollection(subargs[0])

@@ -3,8 +3,11 @@ package postman
 import (
 	"encoding/json"
 	"io/ioutil"
+	"strings"
 	"time"
 )
+
+const POSTMAN_ENV_SUFFIX = ".postman_environment.json"
 
 type Environment struct {
 	Id                   string    `json:"id"`
@@ -33,3 +36,8 @@ func ParseEnv(filename string) (*Environment, error) {
 	}
 	return &e, nil
 }
+
+func IsEnvironmentFile(filename string) bool {
+	return strings.HasSuffix(filename, POSTMAN_ENV_SUFFIX)
+}
+

@@ -2,8 +2,8 @@ package cui
 
 import (
 	"fmt"
-	"github.com/cacarpenter/gopostal/gp"
 	"github.com/cacarpenter/gopostal/postman"
+	"github.com/cacarpenter/gopostal/util"
 	"github.com/jroimartin/gocui"
 	"log"
 )
@@ -30,6 +30,17 @@ type ConsoleUI struct {
 	itemTree        *ItemTree
 	requestWidget   *RequestWidget
 	variablesWidget *VariablesWidget
+	*log.Logger
+}
+
+func NewConsoleUI(logger *log.Logger) *ConsoleUI {
+	ui := ConsoleUI{}
+	ui.itemTree = &ItemTree{}
+	ui.requestWidget = &RequestWidget{}
+	ui.variablesWidget = &VariablesWidget{}
+	ui.Logger = logger
+	ui.itemTree.Logger = logger
+	return &ui
 }
 
 func (ui *ConsoleUI) Run() {
@@ -50,11 +61,11 @@ func (ui *ConsoleUI) Run() {
 	}
 }
 
+/*
 func (ui *ConsoleUI) Open(collection, environment string) {
 	pmColl, err := postman.ParseCollection(collection)
 	if err != nil {
 		log.Panicln(err)
-		return
 	}
 
 	// show all the root items by default
@@ -62,22 +73,10 @@ func (ui *ConsoleUI) Open(collection, environment string) {
 	ui.Init(pmColl)
 
 	if len(environment) > 0 {
-		env, err := postman.ParseEnv(environment)
-		if err == nil {
-			sess := gp.CurrentSession()
-			sess.Update(env, true)
-		} else {
-			fmt.Println("Cant load env", err)
-		}
-	}
-	ui.Run()
-}
 
-func (ui *ConsoleUI) Init(pmColl *postman.Collection) {
-	ui.itemTree = NewItemTree(pmColl)
-	ui.requestWidget = &RequestWidget{pmColl}
-	ui.variablesWidget = &VariablesWidget{}
-}
+	}
+	ui.init()
+}*/
 
 /*
 A layout based on the golden ratio sort of
@@ -93,16 +92,17 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 	*/
 
 	// golden-ish ratio
-	remainder := int(float64(maxX) - float64(maxY)*2.4)
+	remainder := int(float64(maxX) - float64(maxY)*2.5)
+	leftWidthAdd := 6
 
 	// collection view
 	treeX0 := 0
 	treeY0 := 0
 	treeX1 := remainder - 1
-	treeY1 := maxY/2 - 1
+	treeY1 := maxY/2 + leftWidthAdd - 1
 
 	variablesX0 := 0
-	variablesY0 := maxY / 2
+	variablesY0 := maxY/2 + leftWidthAdd
 	variablesX1 := remainder - 1
 	variablesY1 := maxY - 1
 
@@ -166,4 +166,19 @@ func renderError(g *gocui.Gui, msg string) error {
 
 func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
+}
+
+func (ui *ConsoleUI) SetPostmanCollections(pcs []*postman.Collection) {
+	ui.itemTree.collections = pcs
+	for i, pc := range pcs {
+		if i == 0 {
+			ui.itemTree.selected = pc
+			pc.SetSelected(true)
+		}
+		pc.ToggleExpanded()
+	}
+}
+
+func (ui *ConsoleUI) UpdateVariables(vars map[string]string) {
+	ui.variablesWidget.SetVariables(util.Map2Array(vars))
 }

@@ -4,13 +4,14 @@ package util
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"regexp"
 )
 
 func ReplaceVariables(raw string, subVals map[string]string) string {
 	r, err := regexp.Compile("\\{\\{\\w+\\}\\}")
 	if err != nil {
-		panic(err)
+		log.Panicln(err)
 	}
 
 	var buffer bytes.Buffer
@@ -57,4 +58,16 @@ func StringOf(c rune, l int) string {
 
 func Pad(s string, l int) string {
 	return fmt.Sprintf("%-*s", l, s)
+}
+
+func Map2Array(m map[string]string) [][]string {
+	arr := make([][]string, len(m))
+	i := 0
+	for k, v := range m {
+		arr[i] = make([]string, 2)
+		arr[i][0] = k
+		arr[i][1] = v
+		i++
+	}
+	return arr
 }
