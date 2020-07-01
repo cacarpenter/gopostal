@@ -170,7 +170,7 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (ui *ConsoleUI) SetPostmanCollections(pcs []*postman.Collection) {
-	ui.itemTree.collections = pcs
+	ui.itemTree.SetCollections ( pcs )
 	for i, pc := range pcs {
 		if i == 0 {
 			ui.itemTree.selected = pc
@@ -190,4 +190,7 @@ func (ui *ConsoleUI) SetOnExec( f func()) {
 
 func (ui *ConsoleUI) SelectedCollection() *postman.Collection {
 	return ui.itemTree.selected
+}
+
+func (ui *ConsoleUI) DeleteSelection() {
 }

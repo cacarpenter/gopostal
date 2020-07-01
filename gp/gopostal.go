@@ -25,8 +25,6 @@ func (app *GoPostal) initLogging() {
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
-	// this means nothing else logs
-	// defer f.Close()
 	app.logFile = f
 
 	logger := log.New(f, "", log.Ldate|log.Ltime)

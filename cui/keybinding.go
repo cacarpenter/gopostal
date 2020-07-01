@@ -34,6 +34,10 @@ func (ui *ConsoleUI) keybindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", gocui.KeyEnter, gocui.ModNone, ui.callRequest); err != nil {
 		log.Panicln(err)
 	}
+	// DELETE
+	if err := g.SetKeybinding("", gocui.KeyDelete, gocui.ModNone, ui.deleteSelection); err != nil {
+		log.Panicln(err)
+	}
 	/*
 	if err := g.SetKeybinding("", gocui.KeyF1, gocui.ModNone, func(gui *gocui.Gui, view *gocui.View) error {
 		gui.SetCurrentView(treeViewName)
@@ -60,8 +64,7 @@ func (ui *ConsoleUI) updateTree(g *gocui.Gui, f func(it *ItemTree)) error {
 	}
 	ui.requestWidget.collection = ui.itemTree.selected
 	ui.requestWidget.Layout(rv)
-	return nil
-}
+	return nil}
 
 func (ui *ConsoleUI) cursorDown(g *gocui.Gui, v *gocui.View) error {
 	if v != nil {
@@ -108,5 +111,10 @@ func (ui *ConsoleUI) callRequest(g *gocui.Gui, v *gocui.View) error {
 	ui.Logger.Println("callRequest")
 	ui.execFunc()
 
+	return nil
+}
+
+func (ui *ConsoleUI) deleteSelection(g *gocui.Gui, v *gocui.View) error {
+	ui.DeleteSelection()
 	return nil
 }

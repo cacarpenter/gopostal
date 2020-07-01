@@ -10,12 +10,13 @@ import (
 // const SELECT_COLOR = colorGreen
 
 type ItemTree struct {
+	*log.Logger
 	collections []*postman.Collection
 
+	// which collection the cursor is currently on
+	currentCollectionIdx int
 	// which item in the tree is selected
 	selected *postman.Collection
-
-	*log.Logger
 }
 
 /*
@@ -74,6 +75,10 @@ func (it *ItemTree) MoveUp() {
 func (it *ItemTree) MoveDown() {
 	it.Logger.Println("moveDown")
 	var nextItem *postman.Collection
+	if it.selected == nil {
+		it.Logger.Println("no current selection")
+		return
+	}
 	if it.selected.Expanded() {
 		if len(it.selected.Children) > 0 {
 			nextItem = it.selected.Children[0]
@@ -87,6 +92,14 @@ func (it *ItemTree) MoveDown() {
 			if parentSib != nil {
 				nextItem = parentSib
 			}
+		}
+	}
+	if nextItem == nil {
+		it.Logger.Println("Checking for another collection")
+		// check for another collection
+		if it.currentCollectionIdx+1 < len(it.collections) {
+			it.currentCollectionIdx++
+			it.selected = it.collections[it.currentCollectionIdx]
 		}
 	}
 	if nextItem != nil {
@@ -109,6 +122,13 @@ func (it *ItemTree) ToggleExpanded() {
 	it.Logger.Println("ToggleExpanded")
 	if it.selected != nil {
 		it.selected.ToggleExpanded()
+	}
+}
+
+func (it *ItemTree) SetCollections(pcs []*postman.Collection) {
+	it.collections = pcs
+	if len(it.collections) > 0 {
+		it.selected = it.collections[0]
 	}
 }
 

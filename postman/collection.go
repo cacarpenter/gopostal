@@ -131,6 +131,11 @@ func (c *Collection) Label() string {
 	return c.Name
 }
 
+func (c *Collection) AddChild(child *Collection) {
+	child.parent = c
+	c.Children = append(c.Children, child)
+}
+
 func IsCollectionFile(filename string) bool {
 	return strings.HasSuffix(filename, POSTMAN_COLLECTION_SUFFIX)
 }
