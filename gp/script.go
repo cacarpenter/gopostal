@@ -2,7 +2,6 @@ package gp
 
 import (
 	"github.com/robertkrimen/otto"
-	"log"
 )
 
 
@@ -50,7 +49,7 @@ func (app *GoPostal) RunJavaScript(script, responseBody string) {
 		if valErr != nil {
 			continue
 		}
-		log.Printf("%s -> %s\n", envKey, envVal)
+		app.logger.Printf("%s -> %s\n", envKey, envVal)
 		app.session.Put(envKey, envVal.String())
 	}
 	// TODO do something to trigger rerender of variables view

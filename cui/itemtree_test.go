@@ -117,5 +117,49 @@ func TestItemTree_MoveDown_ThreeCollsOneDescendentEach(t *testing.T) {
 	if it.selected != colls[2].Children[0] {
 		t.Fatal("Not p 2 c 0")
 	}
+}
 
+func TestItemTree_MoveUp_ThreeCollsOneDescendentEach(t *testing.T) {
+	it := setUp()
+	colls := make([]*postman.Collection, 3)
+	colls[0] = new(postman.Collection)
+	colls[0].Name = "p0"
+	colls[0].AddChild(new(postman.Collection))
+	colls[1] = new(postman.Collection)
+	colls[1].Name = "p1"
+	colls[1].AddChild(new(postman.Collection))
+	colls[2] = new(postman.Collection)
+	colls[2].Name = "p2"
+	colls[2].AddChild(new(postman.Collection))
+	it.SetCollections(colls)
+	it.ExpandAll()
+	it.SelectLast()
+	if it.selected != colls[2].Children[0] {
+		t.Fatalf("Not at last p2 c0 : %s\n", it.selected.Label())
+	}
+
+	it.MoveUp()
+	if it.selected != colls[2] {
+		t.Fatalf("Not p 2 : %s\n", it.selected.Label())
+	}
+	it.MoveUp()
+	if it.selected != colls[1].Children[0] {
+		t.Fatalf("Not p 1 c 0 : %s\n", it.selected.Label())
+	}
+	it.MoveUp()
+	if it.selected != colls[1] {
+		t.Fatal("Not p 1")
+	}
+	it.MoveUp()
+	if it.selected != colls[0].Children[0] {
+		t.Fatal("Not p 0 c 0")
+	}
+	it.MoveUp()
+	if it.selected != colls[0] {
+		t.Fatal("Not p 0")
+	}
+	it.MoveUp()
+	if it.selected != colls[0] {
+		t.Fatal("Not still p 0")
+	}
 }

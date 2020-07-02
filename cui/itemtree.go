@@ -25,7 +25,7 @@ func NewItemTree(pc *postman.Collection) *ItemTree {
 	it := ItemTree{pc, pc}
 	return &it
 }
- */
+*/
 
 func (it *ItemTree) Layout(v *gocui.View) {
 	v.Clear()
@@ -61,6 +61,24 @@ func (it *ItemTree) MoveUp() {
 			if parentSib != nil {
 				nextItem = parentSib
 			}
+		}
+	}
+	if nextItem == nil {
+		it.Logger.Println("Checking for a previous collection")
+		// check for another collection
+		if it.currentCollectionIdx > 0 {
+			it.currentCollectionIdx--
+			// if the previous collection is expanded and has children
+			curr := it.collections[it.currentCollectionIdx]
+			if curr.Expanded() && len(curr.Children) > 0 {
+				// select the last child
+				it.selected = curr.Children[len(curr.Children)-1]
+			} else {
+				// otherwise it is the previous collection itself
+				it.selected = it.collections[it.currentCollectionIdx]
+			}
+		} else {
+			it.Logger.Println("Move Up already at first collection")
 		}
 	}
 	if nextItem != nil {
@@ -132,12 +150,16 @@ func (it *ItemTree) SetCollections(pcs []*postman.Collection) {
 	}
 }
 
+func (it *ItemTree) SelectLast() {
+	it.currentCollectionIdx = len(it.collections) - 1
+	if it.currentCollectionIdx > -1 {
+		rootColl := it.collections[it.currentCollectionIdx]
+		it.selected = rootColl.LastExpandedDescendent()
+	}
+}
+
 func printCollection(v *gocui.View, pad string, pci *postman.Collection) {
 	fmt.Fprint(v, pad)
-	n := pci.Name
-	if len(n) == 0 && pci.Info != nil {
-		n = pci.Info.Name
-	}
 	if pci.Request != nil {
 		fmt.Fprint(v, "[", colorCyan, pci.Request.Method, colorReset, "] ")
 		if pci.Selected() {
@@ -150,7 +172,7 @@ func printCollection(v *gocui.View, pad string, pci *postman.Collection) {
 		if pci.Expanded() {
 			chev = "\\/"
 		}
-		label := fmt.Sprintf("%s %s", chev, n)
+		label := fmt.Sprintf("%s %s", chev, pci.Label())
 		if pci.Selected() {
 			fmt.Fprintln(v, colorGreen, label, colorReset)
 		} else {
@@ -163,4 +185,3 @@ func printCollection(v *gocui.View, pad string, pci *postman.Collection) {
 		}
 	}
 }
-

@@ -136,6 +136,15 @@ func (c *Collection) AddChild(child *Collection) {
 	c.Children = append(c.Children, child)
 }
 
+// LastExpandedDescendent recursively returns the last child of expanded of a collection.
+// Otherwise the collection itself is returned
+func (c *Collection) LastExpandedDescendent() *Collection {
+	if c.expanded && len(c.Children) > 0 {
+		return c.Children[len(c.Children)-1].LastExpandedDescendent()
+	}
+	return c
+}
+
 func IsCollectionFile(filename string) bool {
 	return strings.HasSuffix(filename, POSTMAN_COLLECTION_SUFFIX)
 }
