@@ -72,10 +72,10 @@ func (it *ItemTree) MoveUp() {
 			curr := it.collections[it.currentCollectionIdx]
 			if curr.Expanded() && len(curr.Children) > 0 {
 				// select the last child
-				it.selected = curr.Children[len(curr.Children)-1]
+				nextItem = curr.Children[len(curr.Children)-1]
 			} else {
 				// otherwise it is the previous collection itself
-				it.selected = it.collections[it.currentCollectionIdx]
+				nextItem = it.collections[it.currentCollectionIdx]
 			}
 		} else {
 			it.Logger.Println("Move Up already at first collection")
@@ -117,7 +117,7 @@ func (it *ItemTree) MoveDown() {
 		// check for another collection
 		if it.currentCollectionIdx+1 < len(it.collections) {
 			it.currentCollectionIdx++
-			it.selected = it.collections[it.currentCollectionIdx]
+			nextItem = it.collections[it.currentCollectionIdx]
 		}
 	}
 	if nextItem != nil {
@@ -130,9 +130,15 @@ func (it *ItemTree) MoveDown() {
 	}
 }
 
+func (it *ItemTree) CollapseAll() {
+	for _, pmColl := range it.collections {
+		pmColl.Expand(false, true)
+	}
+}
+
 func (it *ItemTree) ExpandAll() {
 	for _, pmColl := range it.collections {
-		pmColl.Expand(true)
+		pmColl.Expand(true, true)
 	}
 }
 

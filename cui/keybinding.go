@@ -28,6 +28,9 @@ func (ui *ConsoleUI) keybindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", 'e', gocui.ModNone, ui.toggleExpand); err != nil {
 		log.Panicln(err)
 	}
+	if err := g.SetKeybinding("", 'C', gocui.ModNone, ui.collapseAll); err != nil {
+		log.Panicln(err)
+	}
 	if err := g.SetKeybinding("", 'E', gocui.ModNone, ui.expandAll); err != nil {
 		log.Panicln(err)
 	}
@@ -104,6 +107,12 @@ func (ui *ConsoleUI) toggleExpand(g *gocui.Gui, v *gocui.View) error {
 func (ui *ConsoleUI) expandAll(g *gocui.Gui, v *gocui.View) error {
 	return ui.updateTree(g, func(it *ItemTree) {
 		it.ExpandAll()
+	})
+}
+
+func (ui *ConsoleUI) collapseAll(g *gocui.Gui, v *gocui.View) error {
+	return ui.updateTree(g, func(it *ItemTree) {
+		it.CollapseAll()
 	})
 }
 

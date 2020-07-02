@@ -32,11 +32,11 @@ func (c *Collection) SetExpanded(e bool) {
 	c.expanded = e
 }
 
-func (c *Collection) Expand(recursive bool) {
-	c.expanded = true
+func (c *Collection) Expand(exp, recursive bool) {
+	c.expanded = exp
 	if recursive {
 		for _, ch := range c.Children {
-			ch.Expand(recursive)
+			ch.Expand(exp, recursive)
 		}
 	}
 }
