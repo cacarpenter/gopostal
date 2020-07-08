@@ -45,6 +45,9 @@ func (it *ItemTree) Layout(v *gocui.View) {
 
 func (it *ItemTree) MoveUp() {
 	it.Logger.Println("moveUp")
+	if it.selected == nil {
+		it.Logger.Println("MoveUp: Nothing selected")
+	}
 	var nextItem *postman.Collection
 	prevSib := it.selected.PreviousSibling()
 	if prevSib != nil {

@@ -120,7 +120,7 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 	if treeView, err := g.SetView(treeViewName, treeX0, treeY0, treeX1, treeY1); err != nil {
 		treeView.Title = "Tree"
 		treeView.Highlight = true
-		treeView.Autoscroll = true
+		treeView.Autoscroll = false
 		// treeView.SetCursor(0, 0)
 		if err != gocui.ErrUnknownView {
 			return err

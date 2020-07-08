@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const POSTMAN_COLLECTION_SUFFIX = ".postman_collection.json"
+const POSTMAN_COLLECTION_SUFFIX = "postman_collection.json"
 
 type CollectionInfo struct {
 	PostmanId string `json:"_postman_id"`
