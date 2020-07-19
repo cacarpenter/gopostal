@@ -54,26 +54,26 @@ func printGroup(v *gocui.View, pad string, grp *gpmodel.Group) {
 		}
 		if grp.Expanded() {
 			for _, child := range grp.Children {
-				printGroup(v, pad+" ", &child)
+				printGroup(v, pad+" ", child)
 			}
 		}
 	}
 }
-/*
+
 func (gw *GroupsWidget) MoveUp() {
 	gw.Logger.Println("moveUp")
 	if gw.selectedGroup == nil {
 		gw.Logger.Println("MoveUp: Nothing selected")
 	}
-	var nextItem *postman.Collection
+	var nextItem *gpmodel.Group
 	prevSib := gw.selectedGroup.PreviousSibling()
 	if prevSib != nil {
-		if prevSib.expanded() {
+		if prevSib.Expanded() {
 			nextItem = prevSib.Children[len(prevSib.Children)-1]
 		} else {
 			nextItem = prevSib
 		}
-	} else if gw.selectedGroup.parent != nil {
+	} else if gw.selectedGroup.Parent() != nil {
 		if gw.selectedGroup.Parent().Expanded() {
 			nextItem = gw.selectedGroup.Parent()
 		} else {
@@ -86,16 +86,16 @@ func (gw *GroupsWidget) MoveUp() {
 	if nextItem == nil {
 		gw.Logger.Println("Checking for a previous collection")
 		// check for another collection
-		if gw.currentCollectionIdx > 0 {
-			gw.currentCollectionIdx--
+		if gw.currentGroupIdx > 0 {
+			gw.currentGroupIdx--
 			// if the previous collection is expanded and has children
-			curr := gw.collections[gw.currentCollectionIdx]
+			curr := gw.groups[gw.currentGroupIdx]
 			if curr.Expanded() && len(curr.Children) > 0 {
 				// select the last child
 				nextItem = curr.Children[len(curr.Children)-1]
 			} else {
 				// otherwise gw is the previous collection gwself
-				nextItem = gw.collections[gw.currentCollectionIdx]
+				nextItem = &gw.groups[gw.currentGroupIdx]
 			}
 		} else {
 			gw.Logger.Println("Move Up already at first collection")
@@ -109,4 +109,3 @@ func (gw *GroupsWidget) MoveUp() {
 		gw.Logger.Println("MoveUp: No nextItem")
 	}
 }
- */

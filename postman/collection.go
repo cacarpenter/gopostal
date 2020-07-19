@@ -35,13 +35,18 @@ func ParseCollection(filename string) (*gpmodel.Group, error) {
 	}
 
 	group := gpmodel.Group{}
-	group.Name = coll.Name
-	// TODO in the gp package
-	// link up the parents
-	//coll.linkParent(nil)
-	//coll.ToggleSelected()
+	wireCollection(&group, &coll)
+	// group.LinkParent(nil)
 
 	return &group, nil
+}
+
+func wireCollection(g *gpmodel.Group, pc *Collection) {
+	g.Name = pc.Name
+	for _, childColl := range pc.Children {
+		childGroup := gpmodel.Group{}
+		wireCollection(&childGroup, childColl)
+	}
 }
 
 func (c *Collection) Label() string {

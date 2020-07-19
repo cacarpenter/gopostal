@@ -2,7 +2,7 @@ package gpmodel
 
 type Group struct {
 	Name               string
-	Children           []Group
+	Children           []*Group
 	parent             *Group
 	Request            *RequestSpec
 	expanded, selected bool
@@ -50,10 +50,10 @@ func (g *Group) PreviousSibling() *Group {
 	}
 	var prev *Group
 	for _, ch := range g.parent.Children {
-		if g == &ch {
+		if g == ch {
 			break
 		}
-		prev = &ch
+		prev = ch
 	}
 	return prev
 }
@@ -65,8 +65,8 @@ func (g *Group) NextSibling() *Group {
 	}
 	numSibs := len(g.parent.Children)
 	for i, ch := range g.parent.Children {
-		if g == &ch && i < numSibs-1 {
-			return &g.parent.Children[i+1]
+		if g == ch && i < numSibs-1 {
+			return g.parent.Children[i+1]
 		}
 	}
 	return nil
@@ -76,9 +76,9 @@ func (g *Group) Parent() *Group {
 	return g.parent
 }
 
-func (g *Group) linkParent(p *Group) {
+func (g *Group) LinkParent(p *Group) {
 	for _, ch := range p.Children {
-		ch.linkParent(g)
+		ch.LinkParent(g)
 	}
 	g.parent = p
 }
@@ -107,6 +107,6 @@ func (g *Group) ParentName() string {
 // used by tests
 func (g *Group) AddChild(child *Group) {
 	child.parent = g
-	g.Children = append(g.Children, *child)
+	g.Children = append(g.Children, child)
 }
 
