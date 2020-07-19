@@ -71,7 +71,9 @@ func (ui *ConsoleUI) updateGroupsWidget(g *gocui.Gui, f func(gw *GroupsWidget)) 
 	if err != nil {
 		return err
 	}
-	ui.requestWidget.request = ui.groupsWidget.selectedGroup.Request
+	if ui.groupsWidget.selectedGroup != nil {
+		ui.requestWidget.request = ui.groupsWidget.selectedGroup.Request
+	}
 	ui.requestWidget.Layout(rv)
 	return nil
 }

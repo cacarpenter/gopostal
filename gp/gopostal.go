@@ -2,6 +2,7 @@ package gp
 
 import (
 	"github.com/cacarpenter/gopostal/cui"
+	"github.com/cacarpenter/gopostal/gpmodel"
 	"github.com/cacarpenter/gopostal/postman"
 	"io"
 	"log"
@@ -16,7 +17,7 @@ type GoPostal struct {
 	logger       *log.Logger
 	logFile      *os.File
 	environments []*postman.Environment
-	collections  []*postman.Collection
+	Groups       []gpmodel.Group
 }
 
 func (app *GoPostal) initLogging() {
@@ -39,32 +40,32 @@ func New() *GoPostal {
 	app.ui.SetOnExec(app.ExecCurrentSelection)
 	app.session = NewSession()
 	app.environments = make([]*postman.Environment, 1)
-	app.collections = make([]*postman.Collection, 1)
+	app.Groups = make([]gpmodel.Group, 1)
 
 	return &app
 }
 
 func (app *GoPostal) ExecCurrentSelection(w io.Writer) {
 	/*
-	pmColl := app.ui.SelectedCollection()
-	if pmColl != nil && pmColl.Request != nil {
-		response, err := app.CallRequest(pmColl.Request, app.logger.Writer())
+		pmColl := app.ui.SelectedCollection()
+		if pmColl != nil && pmColl.Request != nil {
+			response, err := app.CallRequest(pmColl.Request, app.logger.Writer())
 
-		if err != nil {
-			app.logger.Panicln(err)
-		}
-
-		for _, ev := range pmColl.Events {
-			var buf bytes.Buffer
-			for _, l := range ev.Script.Lines {
-				buf.WriteString(l)
-				buf.WriteString("\n")
+			if err != nil {
+				app.logger.Panicln(err)
 			}
-			app.RunJavaScript(buf.String(), *response)
+
+			for _, ev := range pmColl.Events {
+				var buf bytes.Buffer
+				for _, l := range ev.Script.Lines {
+					buf.WriteString(l)
+					buf.WriteString("\n")
+				}
+				app.RunJavaScript(buf.String(), *response)
+			}
+			// app.ui.Layout
 		}
-		// app.ui.Layout
-	}
-	 */
+	*/
 }
 
 func (app *GoPostal) SetPostmanEnvironments(environments []*postman.Environment) {

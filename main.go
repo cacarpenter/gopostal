@@ -22,9 +22,8 @@ func main() {
 
 	app := gp.New()
 
-//	var collections []*postman.Collection
 	var environments []*postman.Environment
-	var groups []*gpmodel.Group
+	var groups []gpmodel.Group
 	for _, filename := range flag.Args() {
 		if postman.IsEnvironmentFile(filename) {
 			pmEnv, err := postman.ParseEnv(filename)
@@ -36,14 +35,14 @@ func main() {
 		} else if postman.IsCollectionFile(filename) {
 			pmColl, err := postman.ParseCollection(filename)
 			if err == nil {
-				groups = append(groups, pmColl)
+				groups = append(groups, *pmColl)
 			} else {
 				log.Panicln("Bad postman collection", filename, err)
 			}
 		}
 	}
 
-	// app.SetPostmanCollections(collections)
+	app.Groups = groups
 	app.SetPostmanEnvironments(environments)
 	app.Run()
 	app.Stop()
