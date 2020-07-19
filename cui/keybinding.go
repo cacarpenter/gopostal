@@ -41,33 +41,40 @@ func (ui *ConsoleUI) keybindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", gocui.KeyDelete, gocui.ModNone, ui.deleteSelection); err != nil {
 		log.Panicln(err)
 	}
-	/*
-	if err := g.SetKeybinding("", gocui.KeyF1, gocui.ModNone, func(gui *gocui.Gui, view *gocui.View) error {
-		gui.SetCurrentView(treeViewName)
-		return nil
-	}); err != nil {
+	if err := g.SetKeybinding("", gocui.KeyPgup, gocui.ModNone, ui.pageUp); err != nil {
 		log.Panicln(err)
 	}
-	 */
+	if err := g.SetKeybinding("", gocui.KeyPgdn, gocui.ModNone, ui.pageDown); err != nil {
+		log.Panicln(err)
+	}
+	/*
+		if err := g.SetKeybinding("", gocui.KeyF1, gocui.ModNone, func(gui *gocui.Gui, view *gocui.View) error {
+			gui.SetCurrentView(treeViewName)
+			return nil
+		}); err != nil {
+			log.Panicln(err)
+		}
+	*/
 
 	return nil
 }
 
-func (ui *ConsoleUI) updateTree(g *gocui.Gui, f func(it *ItemTree)) error {
+func (ui *ConsoleUI) updateGroupsWidget(g *gocui.Gui, f func(gw *GroupsWidget)) error {
 	tv, err := g.View(treeViewName)
 	if err != nil {
 		ui.Logger.Println("Error getting tree view", err)
 		return err
 	}
-	f(ui.itemTree)
-	ui.itemTree.Layout(tv)
+	f(ui.groupsWidget)
+	ui.groupsWidget.Layout(tv)
 	rv, err := g.View(requestViewName)
 	if err != nil {
 		return err
 	}
-	ui.requestWidget.collection = ui.itemTree.selected
+	ui.requestWidget.request = ui.groupsWidget.selectedGroup.Request
 	ui.requestWidget.Layout(rv)
-	return nil}
+	return nil
+}
 
 func (ui *ConsoleUI) cursorDown(g *gocui.Gui, v *gocui.View) error {
 	if v != nil {
@@ -79,8 +86,8 @@ func (ui *ConsoleUI) cursorDown(g *gocui.Gui, v *gocui.View) error {
 			fmt.Fprintln(cv, "this is the current non nil view")
 		}
 	}
-	err := ui.updateTree(g, func(it *ItemTree) {
-		it.MoveDown()
+	err := ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
+		//gw.MoveDown()
 	})
 	if err != nil {
 		return err
@@ -93,37 +100,65 @@ func (ui *ConsoleUI) cursorUp(g *gocui.Gui, v *gocui.View) error {
 		cx, cy := v.Cursor()
 		fmt.Fprintf(v, "%d %d\n", cx, cy)
 	}
-	return ui.updateTree(g, func(it *ItemTree) {
-		it.MoveUp()
+	return ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
+		//gw.MoveUp()
 	})
 }
 
 func (ui *ConsoleUI) toggleExpand(g *gocui.Gui, v *gocui.View) error {
-	return ui.updateTree(g, func(it *ItemTree) {
-		it.ToggleExpanded()
+	return ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
+		//gw.ToggleExpanded()
 	})
 }
 
 func (ui *ConsoleUI) expandAll(g *gocui.Gui, v *gocui.View) error {
-	return ui.updateTree(g, func(it *ItemTree) {
-		it.ExpandAll()
+	return ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
+		//gw.ExpandAll()
 	})
 }
 
 func (ui *ConsoleUI) collapseAll(g *gocui.Gui, v *gocui.View) error {
-	return ui.updateTree(g, func(it *ItemTree) {
-		it.CollapseAll()
+	return ui.updateGroupsWidget(g, func(it *GroupsWidget) {
+		//it.CollapseAll()
 	})
 }
 
 func (ui *ConsoleUI) callRequest(g *gocui.Gui, v *gocui.View) error {
 	ui.Logger.Println("callRequest")
-	ui.execFunc()
+	ui.execFunc(v)
 
 	return nil
 }
 
 func (ui *ConsoleUI) deleteSelection(g *gocui.Gui, v *gocui.View) error {
 	ui.DeleteSelection()
+	return nil
+}
+
+func (ui *ConsoleUI) pageUp(g *gocui.Gui, v *gocui.View) error {
+	tv, err := g.View(treeViewName)
+	if err != nil {
+		return err
+	}
+
+	curx, cury := tv.Cursor()
+	ui.Logger.Println("pageUp", curx, cury)
+	if cury >= 5 {
+		cury -= 5
+	}
+	ui.ScrollUp()
+	tv.SetCursor(curx, cury)
+	return nil
+}
+func (ui *ConsoleUI) pageDown(g *gocui.Gui, v *gocui.View) error {
+	tv, err := g.View(treeViewName)
+	if err != nil {
+		return err
+	}
+
+	curx, cury := tv.Cursor()
+	ui.Logger.Println("pageDown", curx, cury)
+	ui.ScrollDown()
+	tv.SetCursor(curx, cury+5)
 	return nil
 }

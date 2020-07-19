@@ -1,9 +1,9 @@
 package gp
 
 import (
-	"bytes"
 	"github.com/cacarpenter/gopostal/cui"
 	"github.com/cacarpenter/gopostal/postman"
+	"io"
 	"log"
 	"os"
 )
@@ -44,7 +44,8 @@ func New() *GoPostal {
 	return &app
 }
 
-func (app *GoPostal) ExecCurrentSelection() {
+func (app *GoPostal) ExecCurrentSelection(w io.Writer) {
+	/*
 	pmColl := app.ui.SelectedCollection()
 	if pmColl != nil && pmColl.Request != nil {
 		response, err := app.CallRequest(pmColl.Request, app.logger.Writer())
@@ -61,7 +62,9 @@ func (app *GoPostal) ExecCurrentSelection() {
 			}
 			app.RunJavaScript(buf.String(), *response)
 		}
+		// app.ui.Layout
 	}
+	 */
 }
 
 func (app *GoPostal) SetPostmanEnvironments(environments []*postman.Environment) {
@@ -73,11 +76,6 @@ func (app *GoPostal) SetPostmanEnvironments(environments []*postman.Environment)
 	app.ui.UpdateVariables(app.session.variables)
 }
 
-func (app *GoPostal) SetPostmanCollections(collections []*postman.Collection) {
-	app.collections = collections
-	app.ui.SetPostmanCollections(collections)
-}
-
 func (app *GoPostal) Run() {
 	app.ui.Run()
 }
@@ -85,4 +83,9 @@ func (app *GoPostal) Run() {
 func (app *GoPostal) Stop() {
 	app.logger.Println("Bye")
 	app.logFile.Close()
+}
+
+func (app *GoPostal) UpdateSession(key, val string) {
+	app.ui.UpdateVariable(key, val)
+	app.session.Put(key, val)
 }

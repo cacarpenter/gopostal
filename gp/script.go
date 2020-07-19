@@ -50,7 +50,7 @@ func (app *GoPostal) RunJavaScript(script, responseBody string) {
 			continue
 		}
 		app.logger.Printf("%s -> %s\n", envKey, envVal)
-		app.session.Put(envKey, envVal.String())
+		app.ui.UpdateVariable(envKey, envVal.String())
 	}
 	// TODO do something to trigger rerender of variables view
 }

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/cacarpenter/gopostal/gp"
+	"github.com/cacarpenter/gopostal/gpmodel"
 	"github.com/cacarpenter/gopostal/postman"
 	"github.com/cacarpenter/gopostal/util"
 	"log"
@@ -21,8 +22,9 @@ func main() {
 
 	app := gp.New()
 
-	var collections []*postman.Collection
+//	var collections []*postman.Collection
 	var environments []*postman.Environment
+	var groups []*gpmodel.Group
 	for _, filename := range flag.Args() {
 		if postman.IsEnvironmentFile(filename) {
 			pmEnv, err := postman.ParseEnv(filename)
@@ -34,30 +36,30 @@ func main() {
 		} else if postman.IsCollectionFile(filename) {
 			pmColl, err := postman.ParseCollection(filename)
 			if err == nil {
-				collections = append(collections, pmColl)
+				groups = append(groups, pmColl)
 			} else {
 				log.Panicln("Bad postman collection", filename, err)
 			}
 		}
 	}
 
-	app.SetPostmanCollections(collections)
+	// app.SetPostmanCollections(collections)
 	app.SetPostmanEnvironments(environments)
 	app.Run()
 	app.Stop()
 }
-
-func printColl(subargs []string) {
-	if len(subargs) < 1 {
-		log.Println("gopostal print filename")
-		return
-	}
-	coll, err := postman.ParseCollection(subargs[0])
-	if err != nil {
-		panic(err)
-	}
-	postman.Print(coll)
-}
+//
+//func printColl(subargs []string) {
+//	if len(subargs) < 1 {
+//		log.Println("gopostal print filename")
+//		return
+//	}
+//	coll, err := postman.ParseCollection(subargs[0])
+//	if err != nil {
+//		panic(err)
+//	}
+//	postman.Print(coll)
+//}
 
 
 func runDiff(subargs []string) {

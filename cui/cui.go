@@ -2,9 +2,9 @@ package cui
 
 import (
 	"fmt"
-	"github.com/cacarpenter/gopostal/postman"
 	"github.com/cacarpenter/gopostal/util"
 	"github.com/jroimartin/gocui"
+	"io"
 	"log"
 )
 
@@ -27,20 +27,19 @@ const (
 )
 
 type ConsoleUI struct {
-	itemTree        *ItemTree
+	groupsWidget    *GroupsWidget
 	requestWidget   *RequestWidget
 	variablesWidget *VariablesWidget
 	*log.Logger
-	execFunc func()
+	execFunc func(w io.Writer)
 }
 
 func NewConsoleUI(logger *log.Logger) *ConsoleUI {
 	ui := ConsoleUI{}
-	ui.itemTree = &ItemTree{}
+	ui.groupsWidget = &GroupsWidget{}
 	ui.requestWidget = &RequestWidget{}
 	ui.variablesWidget = &VariablesWidget{}
 	ui.Logger = logger
-	ui.itemTree.Logger = logger
 	return &ui
 }
 
@@ -119,16 +118,13 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 
 	if treeView, err := g.SetView(treeViewName, treeX0, treeY0, treeX1, treeY1); err != nil {
 		treeView.Title = "Tree"
-		treeView.Highlight = true
+		treeView.Highlight = false
 		treeView.Autoscroll = false
-		// treeView.SetCursor(0, 0)
+		treeView.SetCursor(0, 0)
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		// investigate how this is happening
-		if ui.itemTree != nil {
-			ui.itemTree.Layout(treeView)
-		}
+		ui.groupsWidget.Layout(treeView)
 	}
 	if requestView, err := g.SetView(requestViewName, requestX0, requestY0, requestX1, requestY1); err != nil {
 		if err != gocui.ErrUnknownView {
@@ -169,28 +165,36 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
 
-func (ui *ConsoleUI) SetPostmanCollections(pcs []*postman.Collection) {
-	ui.itemTree.SetCollections ( pcs )
-	for i, pc := range pcs {
-		if i == 0 {
-			ui.itemTree.selected = pc
-			pc.SetSelected(true)
-		}
-		pc.ToggleExpanded()
-	}
-}
+//func (ui *ConsoleUI) SetPostmanCollections(pcs []*postman.Collection) {
+//	ui.itemTree.SetCollections(pcs)
+//	for _, pc := range pcs {
+//		pc.ToggleExpanded()
+//	}
+//}
 
 func (ui *ConsoleUI) UpdateVariables(vars map[string]string) {
 	ui.variablesWidget.SetVariables(util.Map2Array(vars))
 }
 
-func (ui *ConsoleUI) SetOnExec( f func()) {
+func (ui *ConsoleUI) UpdateVariable(k, v string) {
+	ui.variablesWidget.SetVariable(k, v)
+}
+
+func (ui *ConsoleUI) SetOnExec(f func(w io.Writer)) {
 	ui.execFunc = f
 }
 
-func (ui *ConsoleUI) SelectedCollection() *postman.Collection {
-	return ui.itemTree.selected
-}
+//func (ui *ConsoleUI) SelectedCollection() *postman.Collection {
+//	return ui.groupsWidget.selected
+//}
 
 func (ui *ConsoleUI) DeleteSelection() {
+}
+
+func (ui *ConsoleUI) ScrollUp() {
+	ui.Logger.Println("ScrollUp")
+}
+
+func (ui *ConsoleUI) ScrollDown() {
+	ui.Logger.Println("ScrollDown")
 }

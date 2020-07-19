@@ -22,3 +22,11 @@ func (vw *VariablesWidget) SetVariables(v [][]string) {
 	vw.vars = v
 }
 
+func (vw *VariablesWidget) SetVariable(k, v string) {
+	for _, vk := range vw.vars {
+		if vk[0] == k {
+			vk[1] = v
+			break
+		}
+	}
+}
