@@ -32,7 +32,6 @@ func (gw *GroupsWidget) Layout(v *gocui.View) {
 
 func printGroup(v *gocui.View, pad string, grp *gpmodel.Group) {
 	fmt.Fprint(v, pad)
-	fmt.Fprint(v, grp.Name)
 	if grp.Request != nil {
 		//req := gp.RequestSpec(gwn)
 		fmt.Fprint(v, "[", colorCyan, grp.Request.Method, colorReset, "] ")
@@ -57,6 +56,8 @@ func printGroup(v *gocui.View, pad string, grp *gpmodel.Group) {
 				printGroup(v, pad+" ", child)
 			}
 		}
+	} else {
+		fmt.Fprintln(v, "?")
 	}
 }
 

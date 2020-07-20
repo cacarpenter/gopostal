@@ -16,11 +16,11 @@ type CollectionInfo struct {
 }
 
 type Collection struct {
-	Name               string          `json:"name"`
-	Info               *CollectionInfo `json:"info"`
-	Children           []*Collection   `json:"item"`
-	Events             []Event         `json:"event"`
-	Request            *Request        `json:"request"`
+	Name     string          `json:"name"`
+	Info     *CollectionInfo `json:"info"`
+	Children []*Collection   `json:"item"`
+	Events   []Event         `json:"event"`
+	Request  *Request        `json:"request"`
 }
 
 func ParseCollection(filename string) (*gpmodel.Group, error) {
@@ -42,10 +42,12 @@ func ParseCollection(filename string) (*gpmodel.Group, error) {
 }
 
 func wireCollection(g *gpmodel.Group, pc *Collection) {
-	g.Name = pc.Name
+	g.Name = pc.Label()
 	for _, childColl := range pc.Children {
 		childGroup := gpmodel.Group{}
+		childGroup.LinkParent(g)
 		wireCollection(&childGroup, childColl)
+		g.AddChild(&childGroup)
 	}
 }
 

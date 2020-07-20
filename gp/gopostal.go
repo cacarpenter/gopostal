@@ -78,6 +78,10 @@ func (app *GoPostal) SetPostmanEnvironments(environments []*postman.Environment)
 }
 
 func (app *GoPostal) SetGroups(grps []*gpmodel.Group) {
+	app.logger.Printf("Using %d groups\n", len(grps))
+	for _, g := range grps {
+		app.logger.Printf("Collection %s\n", g.Name)
+	}
 	app.groups = grps
 	app.ui.SetGroups(grps)
 }
