@@ -83,7 +83,6 @@ func (g *Group) LinkParent(p *Group) {
 	g.parent = p
 }
 
-/*
 // LastExpandedDescendent recursively returns the last child of expanded of a collection.
 // Otherwise the collection itself is returned
 func (g *Group) LastExpandedDescendent() *Group {
@@ -92,8 +91,6 @@ func (g *Group) LastExpandedDescendent() *Group {
 	}
 	return g
 }
-
-*/
 
 /*
 func (g *Group) ParentName() string {

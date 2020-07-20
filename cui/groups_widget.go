@@ -9,7 +9,7 @@ import (
 
 type GroupsWidget struct {
 	*log.Logger
-	groups          []gpmodel.Group
+	groups          []*gpmodel.Group
 	currentGroupIdx int
 	selectedGroup   *gpmodel.Group
 }
@@ -26,7 +26,7 @@ func (gw *GroupsWidget) Layout(v *gocui.View) {
 		maxItemNameLength = maxItemNameLength/2 + 1
 		// cx, cy := v.Cursor()
 		// fmt.Fprintln(v, cx, cy)
-		printGroup(v, "", &grp)
+		printGroup(v, "", grp)
 	}
 }
 
@@ -95,7 +95,7 @@ func (gw *GroupsWidget) MoveUp() {
 				nextItem = curr.Children[len(curr.Children)-1]
 			} else {
 				// otherwise gw is the previous collection gwself
-				nextItem = &gw.groups[gw.currentGroupIdx]
+				nextItem = gw.groups[gw.currentGroupIdx]
 			}
 		} else {
 			gw.Logger.Println("Move Up already at first collection")
@@ -107,5 +107,79 @@ func (gw *GroupsWidget) MoveUp() {
 		gw.selectedGroup = nextItem
 	} else {
 		gw.Logger.Println("MoveUp: No nextItem")
+	}
+}
+
+func (gw *GroupsWidget) MoveDown() {
+	gw.Logger.Println("moveDown")
+	var nextItem *gpmodel.Group
+	if gw.selectedGroup == nil {
+		gw.Logger.Println("no current selection")
+		return
+	}
+	if gw.selectedGroup.Expanded() {
+		if len(gw.selectedGroup.Children) > 0 {
+			nextItem = gw.selectedGroup.Children[0]
+		}
+	} else {
+		nextSib := gw.selectedGroup.NextSibling()
+		if nextSib != nil {
+			nextItem = nextSib
+		} else if gw.selectedGroup.Parent() != nil {
+			parentSib := gw.selectedGroup.Parent().NextSibling()
+			if parentSib != nil {
+				nextItem = parentSib
+			}
+		}
+	}
+	if nextItem == nil {
+		gw.Logger.Println("Checking for another collection")
+		// check for another collection
+		if gw.currentGroupIdx+1 < len(gw.groups) {
+			gw.currentGroupIdx++
+			nextItem = gw.groups[gw.currentGroupIdx]
+		}
+	}
+	if nextItem != nil {
+		gw.Logger.Println("Setting next item to ", nextItem.Name)
+		gw.selectedGroup.SetSelected(false)
+		nextItem.SetSelected(true)
+		gw.selectedGroup = nextItem
+	} else {
+		gw.Logger.Println("moveDown: No nextItem")
+	}
+}
+
+func (gw *GroupsWidget) CollapseAll() {
+	for _, pmColl := range gw.groups {
+		pmColl.Expand(false, true)
+	}
+}
+
+func (gw *GroupsWidget) ExpandAll() {
+	for _, pmColl := range gw.groups {
+		pmColl.Expand(true, true)
+	}
+}
+
+func (gw *GroupsWidget) ToggleExpanded() {
+	gw.Logger.Println("ToggleExpanded")
+	if gw.selectedGroup != nil {
+		gw.selectedGroup.ToggleExpanded()
+	}
+}
+
+func (gw *GroupsWidget) SelectLast() {
+	gw.currentGroupIdx = len(gw.groups) - 1
+	if gw.currentGroupIdx > -1 {
+		rootColl := gw.groups[gw.currentGroupIdx]
+		gw.selectedGroup = rootColl.LastExpandedDescendent()
+	}
+}
+
+func (gw *GroupsWidget) SetGroups(gps []*gpmodel.Group) {
+	gw.groups = gps
+	if len(gw.groups) > 0 {
+		gw.selectedGroup = gw.groups[0]
 	}
 }
