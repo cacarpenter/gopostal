@@ -2,6 +2,7 @@ package cui
 
 import (
 	"fmt"
+	"github.com/cacarpenter/gopostal/gpmodel"
 	"github.com/cacarpenter/gopostal/util"
 	"github.com/jroimartin/gocui"
 	"io"
@@ -60,23 +61,6 @@ func (ui *ConsoleUI) Run() {
 		log.Panicln(err)
 	}
 }
-
-/*
-func (ui *ConsoleUI) Open(collection, environment string) {
-	pmColl, err := postman.ParseCollection(collection)
-	if err != nil {
-		log.Panicln(err)
-	}
-
-	// show all the root items by default
-	pmColl.ToggleExpanded()
-	ui.Init(pmColl)
-
-	if len(environment) > 0 {
-
-	}
-	ui.init()
-}*/
 
 /*
 A layout based on the golden ratio sort of
@@ -165,12 +149,12 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
 
-//func (ui *ConsoleUI) SetPostmanCollections(pcs []*postman.Collection) {
-//	ui.itemTree.SetCollections(pcs)
-//	for _, pc := range pcs {
-//		pc.ToggleExpanded()
-//	}
-//}
+func (ui *ConsoleUI) SetGroups(grps []*gpmodel.Group) {
+	ui.groupsWidget.groups = grps
+	for _, g := range grps {
+		g.ToggleExpanded()
+	}
+}
 
 func (ui *ConsoleUI) UpdateVariables(vars map[string]string) {
 	ui.variablesWidget.SetVariables(util.Map2Array(vars))
@@ -183,10 +167,6 @@ func (ui *ConsoleUI) UpdateVariable(k, v string) {
 func (ui *ConsoleUI) SetOnExec(f func(w io.Writer)) {
 	ui.execFunc = f
 }
-
-//func (ui *ConsoleUI) SelectedCollection() *postman.Collection {
-//	return ui.groupsWidget.selected
-//}
 
 func (ui *ConsoleUI) DeleteSelection() {
 }
