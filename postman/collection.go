@@ -49,6 +49,12 @@ func wireCollection(g *gpmodel.Group, pc *Collection) {
 		wireCollection(&childGroup, childColl)
 		g.AddChild(&childGroup)
 	}
+	if pc.Request != nil {
+		requestNode := gpmodel.Group{}
+		requestNode.LinkParent(g)
+		requestNode.Request = NewRequestSpec(pc.Request)
+		g.AddChild(&requestNode)
+	}
 }
 
 func (c *Collection) Label() string {

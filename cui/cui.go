@@ -41,6 +41,7 @@ func NewConsoleUI(logger *log.Logger) *ConsoleUI {
 	ui.requestWidget = &RequestWidget{}
 	ui.variablesWidget = &VariablesWidget{}
 	ui.Logger = logger
+	ui.groupsWidget.Logger = logger
 	return &ui
 }
 
@@ -151,8 +152,12 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 
 func (ui *ConsoleUI) SetGroups(grps []*gpmodel.Group) {
 	ui.groupsWidget.groups = grps
-	for _, g := range grps {
-		g.ToggleExpanded()
+	if len(grps) > 0 {
+		grps[0].SetSelected(true)
+		ui.groupsWidget.selectedGroup = grps[0]
+		for _, g := range grps {
+			g.ToggleExpanded()
+		}
 	}
 }
 

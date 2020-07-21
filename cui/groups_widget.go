@@ -32,6 +32,11 @@ func (gw *GroupsWidget) Layout(v *gocui.View) {
 
 func printGroup(v *gocui.View, pad string, grp *gpmodel.Group) {
 	fmt.Fprint(v, pad)
+	if grp.Selected() {
+		fmt.Fprint(v, "* ")
+	} else {
+		fmt.Fprint(v, "  ")
+	}
 	if grp.Request != nil {
 		//req := gp.RequestSpec(gwn)
 		fmt.Fprint(v, "[", colorCyan, grp.Request.Method, colorReset, "] ")
@@ -65,6 +70,7 @@ func (gw *GroupsWidget) MoveUp() {
 	gw.Logger.Println("moveUp")
 	if gw.selectedGroup == nil {
 		gw.Logger.Println("MoveUp: Nothing selected")
+		return
 	}
 	var nextItem *gpmodel.Group
 	prevSib := gw.selectedGroup.PreviousSibling()
@@ -118,11 +124,13 @@ func (gw *GroupsWidget) MoveDown() {
 		gw.Logger.Println("no current selection")
 		return
 	}
+	gw.Logger.Println("MoveDown: Current Selection is ", gw.selectedGroup.Name)
 	if gw.selectedGroup.Expanded() {
 		if len(gw.selectedGroup.Children) > 0 {
 			nextItem = gw.selectedGroup.Children[0]
 		}
 	} else {
+		gw.Logger.Println("MoveDown: Current not expanded, look for the next sibling")
 		nextSib := gw.selectedGroup.NextSibling()
 		if nextSib != nil {
 			nextItem = nextSib
@@ -131,6 +139,8 @@ func (gw *GroupsWidget) MoveDown() {
 			if parentSib != nil {
 				nextItem = parentSib
 			}
+		} else {
+			gw.Logger.Println("No parent and no next sib")
 		}
 	}
 	if nextItem == nil {

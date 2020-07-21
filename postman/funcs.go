@@ -1,6 +1,9 @@
 package postman
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/cacarpenter/gopostal/gpmodel"
+)
 
 func printCollectionItem(pad string, ci *Collection) {
 	fmt.Println(pad+"* Name :", ci.Name)
@@ -17,4 +20,13 @@ func Print(coll *Collection) {
 	for _, i := range coll.Children {
 		printCollectionItem("  ", i)
 	}
+}
+
+func NewRequestSpec(pmReq *Request) *gpmodel.RequestSpec {
+	rs := new(gpmodel.RequestSpec)
+	rs.Method = pmReq.Method
+	if pmReq.Body != nil {
+		rs.Body = pmReq.Body.Raw
+	}
+	return rs
 }

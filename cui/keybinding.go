@@ -89,7 +89,7 @@ func (ui *ConsoleUI) cursorDown(g *gocui.Gui, v *gocui.View) error {
 		}
 	}
 	err := ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
-		//gw.MoveDown()
+		gw.MoveDown()
 	})
 	if err != nil {
 		return err
@@ -103,7 +103,7 @@ func (ui *ConsoleUI) cursorUp(g *gocui.Gui, v *gocui.View) error {
 		fmt.Fprintf(v, "%d %d\n", cx, cy)
 	}
 	return ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
-		//gw.MoveUp()
+		gw.MoveUp()
 	})
 }
 
@@ -115,13 +115,13 @@ func (ui *ConsoleUI) toggleExpand(g *gocui.Gui, v *gocui.View) error {
 
 func (ui *ConsoleUI) expandAll(g *gocui.Gui, v *gocui.View) error {
 	return ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
-		//gw.ExpandAll()
+		gw.ExpandAll()
 	})
 }
 
 func (ui *ConsoleUI) collapseAll(g *gocui.Gui, v *gocui.View) error {
-	return ui.updateGroupsWidget(g, func(it *GroupsWidget) {
-		//it.CollapseAll()
+	return ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
+		gw.CollapseAll()
 	})
 }
 
