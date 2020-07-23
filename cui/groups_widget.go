@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	SelectIcon = '\u066D'
+	SelectIcon     = '\u066D'
 	ArrowDownSolid = '\u25BC'
-	ArrowDownOpen  = '\u142F'
-	ArrowRightOpen = '\u1433'
+	ArrowDownOpen  = '\u1401'
+	ArrowRightOpen = '\u1405'
 )
 
 type GroupsWidget struct {
@@ -39,13 +39,12 @@ func (gw *GroupsWidget) Layout(v *gocui.View) {
 
 func printGroup(v *gocui.View, pad string, grp *gpmodel.Group) {
 	if grp.Selected() {
-		fmt.Fprintf(v, "%c ",SelectIcon)
+		fmt.Fprintf(v, "%c ", SelectIcon)
 	} else {
 		fmt.Fprint(v, "  ")
 	}
 	fmt.Fprint(v, pad)
 	if grp.Request != nil {
-		//req := gp.RequestSpec(gwn)
 		fmt.Fprint(v, "[", colorCyan, grp.Request.Method, colorReset, "] ")
 		if grp.Selected() {
 			fmt.Fprintln(v, colorGreen, grp.Name, colorReset)
@@ -59,7 +58,7 @@ func printGroup(v *gocui.View, pad string, grp *gpmodel.Group) {
 		}
 		label := fmt.Sprintf("%c %s", chev, grp.Name)
 		if grp.Selected() {
-			fmt.Fprintln(v, colorGreen, label, colorReset)
+			fmt.Fprintf(v, "%s%s%s\n", colorGreen, label, colorReset)
 		} else {
 			fmt.Fprintln(v, label)
 		}
@@ -143,9 +142,13 @@ func (gw *GroupsWidget) MoveDown() {
 		if nextSib != nil {
 			nextItem = nextSib
 		} else if gw.selectedGroup.Parent() != nil {
+			l.Println("Selected Parent is", gw.selectedGroup.Parent().Name)
 			parentSib := gw.selectedGroup.Parent().NextSibling()
 			if parentSib != nil {
+				l.Println("Found parent next sib")
 				nextItem = parentSib
+			} else {
+				l.Println("No parent next sib")
 			}
 		} else {
 			gw.Logger.Println("No parent and no next sib")
