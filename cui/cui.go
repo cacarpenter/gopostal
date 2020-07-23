@@ -151,6 +151,8 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (ui *ConsoleUI) SetGroups(grps []*gpmodel.Group) {
+	ui.groupsWidget.SetGroups(grps)
+	/*
 	ui.groupsWidget.groups = grps
 	if len(grps) > 0 {
 		grps[0].SetSelected(true)
@@ -159,6 +161,7 @@ func (ui *ConsoleUI) SetGroups(grps []*gpmodel.Group) {
 			g.ToggleExpanded()
 		}
 	}
+	 */
 }
 
 func (ui *ConsoleUI) UpdateVariables(vars map[string]string) {

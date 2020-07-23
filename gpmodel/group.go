@@ -1,46 +1,10 @@
 package gpmodel
 
 type Group struct {
-	Name               string
-	Children           []*Group
-	parent             *Group
-	Request            *RequestSpec
-	expanded, selected bool
-}
-
-func (g *Group) Expanded() bool {
-	return len(g.Children) > 0 && g.expanded
-}
-
-func (g *Group) SetExpanded(e bool) {
-	g.expanded = e
-}
-
-func (g *Group) Expand(exp, recursive bool) {
-	g.expanded = exp
-	if recursive {
-		for _, ch := range g.Children {
-			ch.Expand(exp, recursive)
-		}
-	}
-}
-
-func (g *Group) ToggleExpanded() bool {
-	g.expanded = !g.expanded
-	return g.expanded
-}
-
-func (g *Group) Selected() bool {
-	return g.selected
-}
-
-func (g *Group) ToggleSelected() bool {
-	g.selected = !g.selected
-	return g.selected
-}
-
-func (g *Group) SetSelected(b bool) {
-	g.selected = b
+	Name     string
+	Children []*Group
+	parent   *Group
+	Request  *RequestSpec
 }
 
 func (g *Group) PreviousSibling() *Group {
@@ -85,6 +49,7 @@ func (g *Group) LinkParent(p *Group) {
 	g.parent = p
 }
 
+/*
 // LastExpandedDescendent recursively returns the last child of expanded of a collection.
 // Otherwise the collection itself is returned
 func (g *Group) LastExpandedDescendent() *Group {
@@ -92,16 +57,7 @@ func (g *Group) LastExpandedDescendent() *Group {
 		return g.Children[len(g.Children)-1].LastExpandedDescendent()
 	}
 	return g
-}
-
-/*
-func (g *Group) ParentName() string {
-	if g.parent != nil {
-		return g.parent.Name
-	}
-	return ""
-}
-*/
+}*/
 
 // used by tests
 func (g *Group) AddChild(child *Group) {
