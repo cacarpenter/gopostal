@@ -36,7 +36,6 @@ func ParseCollection(filename string) (*gpmodel.Group, error) {
 
 	group := gpmodel.Group{}
 	wireCollection(&group, &coll)
-	// group.LinkParent(nil)
 
 	return &group, nil
 }
@@ -45,9 +44,8 @@ func wireCollection(g *gpmodel.Group, pc *Collection) {
 	g.Name = pc.Label()
 	for _, childColl := range pc.Children {
 		childGroup := gpmodel.Group{}
-		childGroup.LinkParent(g)
-		wireCollection(&childGroup, childColl)
 		g.AddChild(&childGroup)
+		wireCollection(&childGroup, childColl)
 	}
 	if pc.Request != nil {
 		requestNode := gpmodel.Group{}

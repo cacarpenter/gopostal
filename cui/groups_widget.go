@@ -7,6 +7,13 @@ import (
 	"log"
 )
 
+const (
+	SelectIcon = '\u066D'
+	ArrowDownSolid = '\u25BC'
+	ArrowDownOpen  = '\u142F'
+	ArrowRightOpen = '\u1433'
+)
+
 type GroupsWidget struct {
 	*log.Logger
 	groups          []*gpmodel.Group
@@ -31,12 +38,12 @@ func (gw *GroupsWidget) Layout(v *gocui.View) {
 }
 
 func printGroup(v *gocui.View, pad string, grp *gpmodel.Group) {
-	fmt.Fprint(v, pad)
 	if grp.Selected() {
-		fmt.Fprint(v, "* ")
+		fmt.Fprintf(v, "%c ",SelectIcon)
 	} else {
 		fmt.Fprint(v, "  ")
 	}
+	fmt.Fprint(v, pad)
 	if grp.Request != nil {
 		//req := gp.RequestSpec(gwn)
 		fmt.Fprint(v, "[", colorCyan, grp.Request.Method, colorReset, "] ")
@@ -46,11 +53,11 @@ func printGroup(v *gocui.View, pad string, grp *gpmodel.Group) {
 			fmt.Fprintln(v, grp.Name)
 		}
 	} else if len(grp.Children) > 0 {
-		chev := "> "
+		chev := ArrowRightOpen
 		if grp.Expanded() {
-			chev = "\\/"
+			chev = ArrowDownOpen
 		}
-		label := fmt.Sprintf("%s %s", chev, grp.Name)
+		label := fmt.Sprintf("%c %s", chev, grp.Name)
 		if grp.Selected() {
 			fmt.Fprintln(v, colorGreen, label, colorReset)
 		} else {
@@ -118,19 +125,20 @@ func (gw *GroupsWidget) MoveUp() {
 }
 
 func (gw *GroupsWidget) MoveDown() {
-	gw.Logger.Println("moveDown")
+	l := gw.Logger
+	l.Println("moveDown")
 	var nextItem *gpmodel.Group
 	if gw.selectedGroup == nil {
 		gw.Logger.Println("no current selection")
 		return
 	}
-	gw.Logger.Println("MoveDown: Current Selection is ", gw.selectedGroup.Name)
+	l.Println("MoveDown: Current Selection is ", gw.selectedGroup.Name)
 	if gw.selectedGroup.Expanded() {
 		if len(gw.selectedGroup.Children) > 0 {
 			nextItem = gw.selectedGroup.Children[0]
 		}
 	} else {
-		gw.Logger.Println("MoveDown: Current not expanded, look for the next sibling")
+		l.Println("MoveDown: Current not expanded, look for the next sibling")
 		nextSib := gw.selectedGroup.NextSibling()
 		if nextSib != nil {
 			nextItem = nextSib

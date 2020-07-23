@@ -77,8 +77,10 @@ func (g *Group) Parent() *Group {
 }
 
 func (g *Group) LinkParent(p *Group) {
-	for _, ch := range p.Children {
-		ch.LinkParent(g)
+	if p != nil {
+		for _, ch := range p.Children {
+			ch.LinkParent(g)
+		}
 	}
 	g.parent = p
 }
@@ -106,4 +108,3 @@ func (g *Group) AddChild(child *Group) {
 	child.parent = g
 	g.Children = append(g.Children, child)
 }
-

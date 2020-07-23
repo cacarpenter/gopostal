@@ -25,3 +25,28 @@ func TestCollection_wireCollection(t *testing.T) {
 	}
 }
 
+func TestParseCollection(t *testing.T) {
+	c, err := ParseCollection("/home/ccarpenter/Documents/postman/Example.postman_collection.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c == nil {
+		t.Fatal("Collection should not be null")
+	}
+	if c.Name != "Example" {
+		t.Fatal("group name should be not ", c.Name)
+	}
+	if c.Request != nil {
+		t.Fatal("Request unexpected here")
+	}
+	if len(c.Children) != 2 {
+		t.Fatal("Should have 2 children but has ", len(c.Children))
+	}
+	if c.Children[0].Name != "Folder1" {
+		t.Fatal("Should have Folder1 as zeroth child")
+	}
+	if c.Children[0].Parent() != c {
+		t.Fatal("Child 0 does not have expected parent", c.Parent())
+	}
+}
+

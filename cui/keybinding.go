@@ -109,7 +109,7 @@ func (ui *ConsoleUI) cursorUp(g *gocui.Gui, v *gocui.View) error {
 
 func (ui *ConsoleUI) toggleExpand(g *gocui.Gui, v *gocui.View) error {
 	return ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
-		//gw.ToggleExpanded()
+		gw.ToggleExpanded()
 	})
 }
 
