@@ -42,9 +42,9 @@ func (gw *GroupsWidget) Layout(v *gocui.View) {
 
 func printNode(v *gocui.View, pad string, node *gwNode) {
 	if node.selected {
-		fmt.Fprintf(v, "%c ", SelectIcon)
+		fmt.Fprintf(v, "%c", SelectIcon)
 	} else {
-		fmt.Fprint(v, "  ")
+		fmt.Fprint(v, " ")
 	}
 	fmt.Fprint(v, pad)
 	if node.request != nil {
@@ -137,10 +137,9 @@ func (gw *GroupsWidget) MoveDown() {
 		return
 	}
 	l.Println("MoveDown: Current Selection is ", gw.selectedNode.label)
-	if gw.selectedNode.expanded {
-		if len(gw.selectedNode.children) > 0 {
-			nextNode = gw.selectedNode.children[0]
-		}
+	if gw.selectedNode.expanded && len(gw.selectedNode.children) > 0 {
+		l.Println("MoveDown. current expanded and has children. return first child")
+		nextNode = gw.selectedNode.children[0]
 	} else {
 		l.Println("MoveDown: Current not expanded, look for the next sibling")
 		nextSib := gw.selectedNode.nextSibling()
@@ -214,9 +213,11 @@ func (gw *GroupsWidget) SetGroups(gps []*gpmodel.Group) {
 	t.children = make([]*gwNode, len(gps))
 	for i, g := range gps {
 		t.children[i] = group2node(g)
+		t.children[i].parent = t
 		t.children[i].expanded = true
 	}
 	gw.tree = t
+	gw.tree.label = "root" // won't be shown in UI but useful for testing
 	gw.selectedNode = t.children[0]
 	gw.selectedNode.selected = true
 }
@@ -224,13 +225,19 @@ func (gw *GroupsWidget) SetGroups(gps []*gpmodel.Group) {
 func group2node(group *gpmodel.Group) *gwNode {
 	n := gwNode{}
 	n.label = group.Name
-	if group.Request != nil {
-		n.request = group.Request
-	} else {
-		n.children = make([]*gwNode, len(group.Children))
-		for i, grpChild := range group.Children {
-			n.children[i] = group2node(grpChild)
-		}
+	n.children = make([]*gwNode, len(group.Children)+len(group.Requests))
+	chIdx := 0
+	for _, req := range group.Requests {
+		reqNode := new(gwNode)
+		reqNode.label = req.Name
+		reqNode.request = req
+		reqNode.parent = &n
+		n.children[chIdx] = reqNode
+		chIdx++
+	}
+	for _, grpChild := range group.Children {
+		n.children[chIdx] = group2node(grpChild)
+		chIdx++
 	}
 	return &n
 }

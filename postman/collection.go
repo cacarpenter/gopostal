@@ -42,17 +42,19 @@ func ParseCollection(filename string) (*gpmodel.Group, error) {
 
 func wireCollection(g *gpmodel.Group, pc *Collection) {
 	g.Name = pc.Label()
-	for _, childColl := range pc.Children {
-		childGroup := gpmodel.Group{}
-		g.AddChild(&childGroup)
-		wireCollection(&childGroup, childColl)
-	}
 	if pc.Request != nil {
-		requestNode := gpmodel.Group{}
-		requestNode.LinkParent(g)
-		requestNode.Request = NewRequestSpec(pc.Request)
-		requestNode.Name = pc.Name
-		g.AddChild(&requestNode)
+		g.Requests = append(g.Requests, NewRequestSpec(pc.Request))
+		//		requestNode := gpmodel.Group{}
+		//		requestNode.LinkParent(g)
+		//		requestNode.Request = NewRequestSpec(pc.Request)
+		//		requestNode.Name = pc.Name
+		//		g.AddChild(&requestNode)
+	} else {
+		for _, childColl := range pc.Children {
+			childGroup := gpmodel.Group{}
+			g.AddChild(&childGroup)
+			wireCollection(&childGroup, childColl)
+		}
 	}
 }
 

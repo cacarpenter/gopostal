@@ -2,18 +2,18 @@ package gpmodel
 
 type Group struct {
 	Name     string
+	Parent   *Group
 	Children []*Group
-	parent   *Group
-	Request  *RequestSpec
+	Requests []*RequestSpec
 }
 
 func (g *Group) PreviousSibling() *Group {
 	// this is the root
-	if g.parent == nil {
+	if g.Parent == nil {
 		return nil
 	}
 	var prev *Group
-	for _, ch := range g.parent.Children {
+	for _, ch := range g.Parent.Children {
 		if g == ch {
 			break
 		}
@@ -24,20 +24,16 @@ func (g *Group) PreviousSibling() *Group {
 
 func (g *Group) NextSibling() *Group {
 	// root
-	if g.parent == nil {
+	if g.Parent == nil {
 		return nil
 	}
-	numSibs := len(g.parent.Children)
-	for i, ch := range g.parent.Children {
+	numSibs := len(g.Parent.Children)
+	for i, ch := range g.Parent.Children {
 		if g == ch && i < numSibs-1 {
-			return g.parent.Children[i+1]
+			return g.Parent.Children[i+1]
 		}
 	}
 	return nil
-}
-
-func (g *Group) Parent() *Group {
-	return g.parent
 }
 
 func (g *Group) LinkParent(p *Group) {
@@ -46,7 +42,7 @@ func (g *Group) LinkParent(p *Group) {
 			ch.LinkParent(g)
 		}
 	}
-	g.parent = p
+	g.Parent = p
 }
 
 /*
@@ -61,6 +57,12 @@ func (g *Group) LastExpandedDescendent() *Group {
 
 // used by tests
 func (g *Group) AddChild(child *Group) {
-	child.parent = g
+	child.Parent = g
 	g.Children = append(g.Children, child)
+}
+
+func NewGroup(name string) *Group {
+	g := new(Group)
+	g.Name = name
+	return g
 }
