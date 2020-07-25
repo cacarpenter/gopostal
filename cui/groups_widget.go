@@ -14,6 +14,57 @@ const (
 	ArrowRightOpen = '\u1405'
 )
 
+type gwNode struct {
+	label              string
+	parent             *gwNode
+	children           []*gwNode
+	request            *gpmodel.RequestSpec
+	expanded, selected bool
+}
+
+func (g *gwNode) expand(exp, recursive bool) {
+	g.expanded = exp
+	if recursive {
+		for _, ch := range g.children {
+			ch.expand(exp, recursive)
+		}
+	}
+}
+
+func (g *gwNode) toggleExpanded() bool {
+	g.expanded = !g.expanded
+	return g.expanded
+}
+
+func (g *gwNode) nextSibling() *gwNode {
+	// root
+	if g.parent == nil {
+		return nil
+	}
+	numSibs := len(g.parent.children)
+	for i, ch := range g.parent.children {
+		if g == ch && i < numSibs-1 {
+			return g.parent.children[i+1]
+		}
+	}
+	return nil
+}
+
+func (g *gwNode) prevSibling() *gwNode {
+	// this is the root
+	if g.parent == nil {
+		return nil
+	}
+	var prev *gwNode
+	for _, ch := range g.parent.children {
+		if g == ch {
+			break
+		}
+		prev = ch
+	}
+	return prev
+}
+
 type GroupsWidget struct {
 	*log.Logger
 	tree         *gwNode
@@ -81,56 +132,36 @@ func (gw *GroupsWidget) MoveUp() {
 		gw.Logger.Println("MoveUp: Nothing selected")
 		return
 	}
-	/*
-		var nextItem *gpmodel.Group
-		prevSib := gw.selectedNode.PreviousSibling()
-		if prevSib != nil {
-			if prevSib.expanded {
-				nextItem = prevSib.Children[len(prevSib.Children)-1]
-			} else {
-				nextItem = prevSib
-			}
-		} else if gw.selectedGroup.Parent() != nil {
-			if gw.selectedGroup.Parent().Expanded() {
-				nextItem = gw.selectedGroup.Parent()
-			} else {
-				parentSib := gw.selectedGroup.Parent().PreviousSibling()
-				if parentSib != nil {
-					nextItem = parentSib
-				}
-			}
-		}
-		if nextItem == nil {
-			gw.Logger.Println("Checking for a previous collection")
-			// check for another collection
-			if gw.currentGroupIdx > 0 {
-				gw.currentGroupIdx--
-				// if the previous collection is expanded and has children
-				curr := gw.groups[gw.currentGroupIdx]
-				if curr.Expanded() && len(curr.Children) > 0 {
-					// select the last child
-					nextItem = curr.Children[len(curr.Children)-1]
-				} else {
-					// otherwise gw is the previous collection gwself
-					nextItem = gw.groups[gw.currentGroupIdx]
-				}
-			} else {
-				gw.Logger.Println("Move Up already at first collection")
-			}
-		}
-		if nextItem != nil {
-			gw.selectedGroup.SetSelected(false)
-			nextItem.SetSelected(true)
-			gw.selectedGroup = nextItem
+	var nextItem *gwNode
+	prevSib := gw.selectedNode.prevSibling()
+	if prevSib != nil {
+		if prevSib.expanded {
+			nextItem = prevSib.children[len(prevSib.children)-1]
 		} else {
-			gw.Logger.Println("MoveUp: No nextItem")
+			nextItem = prevSib
 		}
-	*/
+	} else if gw.selectedNode.parent != nil {
+		if gw.selectedNode.parent.expanded {
+			nextItem = gw.selectedNode.parent
+		} else {
+			parentSib := gw.selectedNode.parent.prevSibling()
+			if parentSib != nil {
+				nextItem = parentSib
+			}
+		}
+	}
+	if nextItem != nil {
+		gw.selectedNode.selected = false
+		nextItem.selected = true
+		gw.selectedNode = nextItem
+	} else {
+		gw.Logger.Println("MoveUp: No nextItem")
+	}
 }
 
 func (gw *GroupsWidget) MoveDown() {
 	l := gw.Logger
-	l.Println("moveDown")
+	l.Println("MoveDown")
 	var nextNode *gwNode
 	if gw.selectedNode == nil {
 		gw.Logger.Println("no current selection")
@@ -142,6 +173,7 @@ func (gw *GroupsWidget) MoveDown() {
 		nextNode = gw.selectedNode.children[0]
 	} else {
 		l.Println("MoveDown: Current not expanded, look for the next sibling")
+		l.Println("MoveDown: parent is ", gw.selectedNode.parent)
 		nextSib := gw.selectedNode.nextSibling()
 		if nextSib != nil {
 			nextNode = nextSib
@@ -228,6 +260,7 @@ func group2node(group *gpmodel.Group) *gwNode {
 	n.children = make([]*gwNode, len(group.Children)+len(group.Requests))
 	chIdx := 0
 	for _, req := range group.Requests {
+		// create a request node for each request
 		reqNode := new(gwNode)
 		reqNode.label = req.Name
 		reqNode.request = req
@@ -237,43 +270,8 @@ func group2node(group *gpmodel.Group) *gwNode {
 	}
 	for _, grpChild := range group.Children {
 		n.children[chIdx] = group2node(grpChild)
+		n.children[chIdx].parent = &n
 		chIdx++
 	}
 	return &n
-}
-
-type gwNode struct {
-	label              string
-	parent             *gwNode
-	children           []*gwNode
-	request            *gpmodel.RequestSpec
-	expanded, selected bool
-}
-
-func (g *gwNode) expand(exp, recursive bool) {
-	g.expanded = exp
-	if recursive {
-		for _, ch := range g.children {
-			ch.expand(exp, recursive)
-		}
-	}
-}
-
-func (g *gwNode) toggleExpanded() bool {
-	g.expanded = !g.expanded
-	return g.expanded
-}
-
-func (g *gwNode) nextSibling() *gwNode {
-	// root
-	if g.parent == nil {
-		return nil
-	}
-	numSibs := len(g.parent.children)
-	for i, ch := range g.parent.children {
-		if g == ch && i < numSibs-1 {
-			return g.parent.children[i+1]
-		}
-	}
-	return nil
 }

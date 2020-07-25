@@ -87,18 +87,18 @@ func TestGroupsWidget_MoveDown_SingleManyDecendents(t *testing.T) {
 func TestGroupsWidget_MoveDown_ThreeCollsOneDescendentEach(t *testing.T) {
 	gw := setUp()
 	grps := make([]*gpmodel.Group, 3)
-	grps[0] = new(gpmodel.Group)
-	grps[0].AddChild(new(gpmodel.Group))
-	grps[1] = new(gpmodel.Group)
+	grps[0] = gpmodel.NewGroup("group 0")
+	grps[0].AddChild(gpmodel.NewGroup("group 0 child 0"))
+	grps[1] = gpmodel.NewGroup("group 1")
 	grps[1].AddChild(new(gpmodel.Group))
-	grps[2] = new(gpmodel.Group)
+	grps[2] = gpmodel.NewGroup("group 2")
 	grps[2].AddChild(new(gpmodel.Group))
 	gw.SetGroups(grps)
 
 	gw.ToggleExpanded()
 	gw.MoveDown()
 	if gw.selectedNode != gw.tree.children[0] {
-		t.Fatal("Not p 0 c 0")
+		t.Fatal("Not p 0 c 0!", gw.selectedNode.label)
 	}
 	gw.MoveDown()
 	if gw.selectedNode != gw.tree.children[1] {
@@ -166,4 +166,4 @@ func TestGroupsWidget_MoveUp_ThreeCollsOneDescendentEach(t *testing.T) {
 	}
 }
 
- */
+*/
