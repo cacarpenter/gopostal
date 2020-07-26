@@ -14,7 +14,6 @@ func main() {
 	// envFlag := flag.String("env", "local.postman_environment.json", "Specify postman environment")
 	flag.Parse()
 
-
 	if len(flag.Args()) < 0 {
 		fmt.Println("Need to specify a file(s) for now")
 		return
@@ -47,19 +46,6 @@ func main() {
 	app.Run()
 	app.Stop()
 }
-//
-//func printColl(subargs []string) {
-//	if len(subargs) < 1 {
-//		log.Println("gopostal print filename")
-//		return
-//	}
-//	coll, err := postman.ParseCollection(subargs[0])
-//	if err != nil {
-//		panic(err)
-//	}
-//	postman.Print(coll)
-//}
-
 
 func runDiff(subargs []string) {
 	if len(subargs) < 2 {

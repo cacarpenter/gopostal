@@ -1,6 +1,7 @@
 package postman
 
 import (
+	"fmt"
 	"github.com/cacarpenter/gopostal/gpmodel"
 	"testing"
 )
@@ -33,8 +34,8 @@ func TestCollection_wireCollection(t *testing.T) {
 
 func TestCollection_wireCollection_SingleTree(t *testing.T) {
 	pc := Collection{}
-	pc.Children = append(pc.Children, new(Collection))
-	pc.Children[0].Children = append(pc.Children[0].Children, new(Collection))
+	pc.Items = append(pc.Items, new(Collection))
+	pc.Items[0].Items = append(pc.Items[0].Items, new(Collection))
 	var grp gpmodel.Group
 	wireCollection(&grp, &pc)
 	if len(grp.Children) != 1 {
@@ -45,8 +46,51 @@ func TestCollection_wireCollection_SingleTree(t *testing.T) {
 	}
 }
 
-func TestParseCollection(t *testing.T) {
-	c, err := ParseCollection("/home/ccarpenter/Documents/postman/Example.postman_collection.json")
+func TestCollection_wireCollection_simple(t *testing.T) {
+	pc := Collection{}
+	pc.Info = &CollectionInfo{}
+	pc.Info.Name = "simple"
+	gp := wireCollection(nil, &pc)
+	if gp.Name != "simple" {
+		t.Fatal("Collect name isnt simple")
+	}
+	if len(gp.Children) != 0 {
+		t.Fatal("Len children should be zero not", len(gp.Children))
+	}
+	if len(gp.Requests) != 0 {
+		t.Fatal("Len request should be zero not", len(gp.Requests))
+	}
+}
+
+func TestCollection_wireCollection_TwoReqs(t *testing.T) {
+	pc := Collection{}
+	pc.Items = make([]*Collection, 2)
+	pc.Items[0] = new(Collection)
+	r1 := new(Request)
+	r1.Method = "GET"
+	pc.Items[0].Name = "Get req 1"
+	pc.Items[0].Request = r1
+
+	r2 := new(Request)
+	r2.Method = "GET"
+	pc.Items[1] = new(Collection)
+	pc.Items[1].Name = "Get req 2"
+	pc.Items[1].Request = r2
+
+	gp := wireCollection(nil, &pc)
+	if len(gp.Children) != 0 {
+		t.Fatal("Len children should be zero not", len(gp.Children))
+	}
+	if len(gp.Requests) != 2 {
+		t.Fatal("Len request should be zero not", len(gp.Requests))
+	}
+	if gp.Requests[0].Method != "GET" {
+		t.Fatal("Req 0 method should be GET")
+	}
+}
+
+func TestParseCollection_Example(t *testing.T) {
+	c, err := ParseCollection("../test_assets/Example.postman_collection.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,7 +98,7 @@ func TestParseCollection(t *testing.T) {
 		t.Fatal("Collection should not be null")
 	}
 	if c.Name != "Example" {
-		t.Fatal("group name should be not ", c.Name)
+		t.Fatal("group name should be Example and not", c.Name)
 	}
 	if len(c.Requests) > 0 {
 		t.Fatal("Request unexpected here")
@@ -62,10 +106,52 @@ func TestParseCollection(t *testing.T) {
 	if len(c.Children) != 2 {
 		t.Fatal("Should have 2 children but has ", len(c.Children))
 	}
+	for i, ch := range c.Children {
+		fmt.Println(i, ch.Name)
+	}
 	if c.Children[0].Name != "Folder1" {
-		t.Fatal("Should have Folder1 as zeroth child")
+		t.Fatal("Should have Folder1 as zeroth child", c.Children[0].Name)
 	}
 	if c.Children[0].Parent != c {
 		t.Fatal("Child 0 does not have expected parent", c.Parent)
+	}
+}
+
+func TestParseCollection_Example2(t *testing.T) {
+	c, err := ParseCollection("../test_assets/Example2.postman_collection.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c == nil {
+		t.Fatal("Collection should not be null")
+	}
+	if c.Name != "Example2" {
+		t.Fatal("group name should be Example and not", c.Name)
+	}
+	if len(c.Requests) > 0 {
+		t.Fatal("Request unexpected here")
+	}
+	if len(c.Children) != 2 {
+		t.Fatal("Should have 2 children but has ", len(c.Children))
+	}
+	f1 := c.Children[0]
+	if f1.Name != "Folder1" {
+		t.Fatal("Should have Folder1 as zeroth child")
+	}
+	if f1.Parent != c {
+		t.Fatal("Child 0 does not have expected parent", c.Parent)
+	}
+	if len(f1.Requests) != 2 {
+		t.Fatal("Folder1 should have 2 requests but found", len(f1.Requests))
+	}
+	f2 := c.Children[1]
+	if f2.Name != "Folder2" {
+		t.Fatal("child1 not named Folder2")
+	}
+	if len(f2.Children) != 1 {
+		t.Fatal("Folder2 should have one child")
+	}
+	if f2.Children[0].Name != "Folder 2 : 1" {
+		t.Fatal("Folder 2:1 not found", f2.Children[0].Name)
 	}
 }

@@ -10,14 +10,14 @@ func printCollectionItem(pad string, ci *Collection) {
 	if ci.Request != nil {
 		fmt.Println(pad+"* Req  : ", ci.Request)
 	}
-	for _, child := range ci.Children {
+	for _, child := range ci.Items {
 		printCollectionItem(pad+pad, child)
 	}
 }
 
 func Print(coll *Collection) {
 	fmt.Println("Name:", coll.Info.Name)
-	for _, i := range coll.Children {
+	for _, i := range coll.Items {
 		printCollectionItem("  ", i)
 	}
 }

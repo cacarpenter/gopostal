@@ -1,0 +1,123 @@
+{
+	"info": {
+		"_postman_id": "cac8de97-1d00-41b4-b33f-7047d885881e",
+		"name": "Example2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Folder1",
+			"item": [
+				{
+					"name": "Example Get Request",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/v1/auth/token",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"v1",
+								"auth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Another Get Req",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/v1/customers",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"v1",
+								"customers"
+							]
+						},
+						"description": "Description Here"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Folder2",
+			"item": [
+				{
+					"name": "Folder 2 : 1",
+					"item": [
+						{
+							"name": "Put Example",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\" : \"CustomerName\"\n}"
+								},
+								"url": {
+									"raw": "{{domain}}/v1/customers/{{customerId}}",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"v1",
+										"customers",
+										"{{customerId}}"
+									]
+								},
+								"description": "Put Example Description Goes Here"
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Post Example",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\" : \"testuser\"\n}"
+						},
+						"url": {
+							"raw": "{{domain}}/v1/users",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"v1",
+								"users"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

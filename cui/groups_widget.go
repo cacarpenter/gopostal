@@ -136,7 +136,9 @@ func (gw *GroupsWidget) MoveUp() {
 	prevSib := gw.selectedNode.prevSibling()
 	if prevSib != nil {
 		if prevSib.expanded {
-			nextItem = prevSib.children[len(prevSib.children)-1]
+			if len(prevSib.children) > 0 {
+				nextItem = prevSib.children[len(prevSib.children)-1]
+			}
 		} else {
 			nextItem = prevSib
 		}

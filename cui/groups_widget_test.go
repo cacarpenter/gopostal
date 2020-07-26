@@ -90,14 +90,16 @@ func TestGroupsWidget_MoveDown_ThreeCollsOneDescendentEach(t *testing.T) {
 	grps[0] = gpmodel.NewGroup("group 0")
 	grps[0].AddChild(gpmodel.NewGroup("group 0 child 0"))
 	grps[1] = gpmodel.NewGroup("group 1")
-	grps[1].AddChild(new(gpmodel.Group))
+	grps[1].AddChild(gpmodel.NewGroup("gp 1 ch 0"))
 	grps[2] = gpmodel.NewGroup("group 2")
 	grps[2].AddChild(new(gpmodel.Group))
 	gw.SetGroups(grps)
 
-	gw.ToggleExpanded()
-	gw.MoveDown()
 	if gw.selectedNode != gw.tree.children[0] {
+		t.Fatal("Not g 0", gw.selectedNode.label)
+	}
+	gw.MoveDown()
+	if gw.selectedNode != gw.tree.children[0].children[0] {
 		t.Fatal("Not p 0 c 0!", gw.selectedNode.label)
 	}
 	gw.MoveDown()
@@ -107,7 +109,7 @@ func TestGroupsWidget_MoveDown_ThreeCollsOneDescendentEach(t *testing.T) {
 	gw.ToggleExpanded()
 	gw.MoveDown()
 	if gw.selectedNode != gw.tree.children[1].children[0] {
-		t.Fatal("Not p 1 c 0")
+		t.Fatal("Not p 1 c 0: ", gw.selectedNode.label)
 	}
 	gw.MoveDown()
 	if gw.selectedNode != gw.tree.children[2] {
@@ -136,7 +138,7 @@ func TestGroupsWidget_MoveUp_ThreeCollsOneDescendentEach(t *testing.T) {
 	gw.tree.children = grps
 	gw.ExpandAll()
 	gw.SelectLast()
-	if gw.selectedNode != grps[2].Children[0] {
+	if gw.selectedNode != grps[2].Items[0] {
 		t.Fatalf("Not at last p2 c0 : %s\n", gw.selectedNode.Name)
 	}
 
@@ -145,7 +147,7 @@ func TestGroupsWidget_MoveUp_ThreeCollsOneDescendentEach(t *testing.T) {
 		t.Fatalf("Not p 2 : %s\n", gw.selectedNode.Name)
 	}
 	gw.MoveUp()
-	if gw.selectedNode != grps[1].Children[0] {
+	if gw.selectedNode != grps[1].Items[0] {
 		t.Fatalf("Not p 1 c 0 : %s\n", gw.selectedNode.Name)
 	}
 	gw.MoveUp()
@@ -153,7 +155,7 @@ func TestGroupsWidget_MoveUp_ThreeCollsOneDescendentEach(t *testing.T) {
 		t.Fatal("Not p 1")
 	}
 	gw.MoveUp()
-	if gw.selectedNode != grps[0].Children[0] {
+	if gw.selectedNode != grps[0].Items[0] {
 		t.Fatal("Not p 0 c 0")
 	}
 	gw.MoveUp()

@@ -2,8 +2,10 @@ package postman
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/cacarpenter/gopostal/gpmodel"
 	"io/ioutil"
+	"log"
 	"strings"
 )
 
@@ -16,11 +18,11 @@ type CollectionInfo struct {
 }
 
 type Collection struct {
-	Name     string          `json:"name"`
-	Info     *CollectionInfo `json:"info"`
-	Children []*Collection   `json:"item"`
-	Events   []Event         `json:"event"`
-	Request  *Request        `json:"request"`
+	Name    string          `json:"name"`
+	Info    *CollectionInfo `json:"info"`
+	Items   []*Collection   `json:"item"`
+	Events  []Event         `json:"event"`
+	Request *Request        `json:"request"`
 }
 
 func ParseCollection(filename string) (*gpmodel.Group, error) {
@@ -34,28 +36,45 @@ func ParseCollection(filename string) (*gpmodel.Group, error) {
 		return nil, err
 	}
 
-	group := gpmodel.Group{}
-	wireCollection(&group, &coll)
-
-	return &group, nil
+	return wireCollection(nil, &coll), nil
 }
 
-func wireCollection(g *gpmodel.Group, pc *Collection) {
-	g.Name = pc.Label()
+func wireCollection(parent *gpmodel.Group, pc *Collection) *gpmodel.Group {
+	fmt.Println("Setting group name to", pc.Label())
 	if pc.Request != nil {
-		g.Requests = append(g.Requests, NewRequestSpec(pc.Request))
-		//		requestNode := gpmodel.Group{}
-		//		requestNode.LinkParent(g)
-		//		requestNode.Request = NewRequestSpec(pc.Request)
-		//		requestNode.Name = pc.Name
-		//		g.AddChild(&requestNode)
+		fmt.Println("Found request", pc.Request)
+		if parent == nil {
+			log.Panicln("Cannot set request on nil parent")
+		}
+		fmt.Println("Set request label to parent name", parent.Name)
+		reqSpec := NewRequestSpec(pc.Request)
+		reqSpec.Name = parent.Name
+		parent.Requests = append(parent.Requests, reqSpec)
+		return parent
+	}
+	fmt.Println("No request on ", pc.Label(), " look for items")
+	var p *gpmodel.Group
+	if parent == nil {
+		fmt.Println("Creating new parent")
+		p = new(gpmodel.Group)
 	} else {
-		for _, childColl := range pc.Children {
-			childGroup := gpmodel.Group{}
-			g.AddChild(&childGroup)
-			wireCollection(&childGroup, childColl)
+		fmt.Println("Using parent ", parent.Name)
+		p = parent
+	}
+	p.Name = pc.Label()
+	fmt.Println("Recur on ", len(pc.Items))
+	for _, childColl := range pc.Items {
+		if childColl.Request != nil {
+			fmt.Println("Found request on ", childColl.Label())
+			wireCollection(p, childColl)
+		} else {
+			fmt.Println("New Group for ", childColl.Name)
+			grp := new(gpmodel.Group)
+			wireCollection(grp, childColl)
+			p.AddChild(grp)
 		}
 	}
+	return p
 }
 
 func (c *Collection) Label() string {
