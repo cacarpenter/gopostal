@@ -135,6 +135,7 @@ func (gw *GroupsWidget) MoveUp() {
 	var nextItem *gwNode
 	prevSib := gw.selectedNode.prevSibling()
 	if prevSib != nil {
+		gw.Logger.Println("MoveUp: No previous sibling")
 		if prevSib.expanded {
 			if len(prevSib.children) > 0 {
 				nextItem = prevSib.children[len(prevSib.children)-1]
@@ -229,13 +230,11 @@ func (gw *GroupsWidget) ToggleExpanded() {
 
 func (gw *GroupsWidget) SelectLast() {
 	/*
-		gw.currentGroupIdx = len(gw.groups) - 1
-		if gw.currentGroupIdx > -1 {
-			rootColl := gw.groups[gw.currentGroupIdx]
-			gw.selectedGroup = rootColl.LastExpandedDescendent()
-		}
-
-	*/
+	if len(gw.tree.children) > 0 {}
+	lastChildIdx := len(gw.tree.children) - 1
+	rootColl := gw.groups[gw.currentGroupIdx]
+	gw.selectedGroup = rootColl.LastExpandedDescendent()
+	 */
 }
 
 func (gw *GroupsWidget) SetGroups(gps []*gpmodel.Group) {

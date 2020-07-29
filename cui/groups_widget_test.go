@@ -106,7 +106,9 @@ func TestGroupsWidget_MoveDown_ThreeCollsOneDescendentEach(t *testing.T) {
 	if gw.selectedNode != gw.tree.children[1] {
 		t.Fatal("Not p 1")
 	}
-	gw.ToggleExpanded()
+	if !gw.selectedNode.expanded {
+		t.Fatal("Selected node should be expanded")
+	}
 	gw.MoveDown()
 	if gw.selectedNode != gw.tree.children[1].children[0] {
 		t.Fatal("Not p 1 c 0: ", gw.selectedNode.label)
@@ -115,7 +117,6 @@ func TestGroupsWidget_MoveDown_ThreeCollsOneDescendentEach(t *testing.T) {
 	if gw.selectedNode != gw.tree.children[2] {
 		t.Fatal("Not p 2")
 	}
-	gw.ToggleExpanded()
 	gw.MoveDown()
 	if gw.selectedNode != gw.tree.children[2].children[0] {
 		t.Fatal("Not p 2 c 0")
@@ -135,37 +136,37 @@ func TestGroupsWidget_MoveUp_ThreeCollsOneDescendentEach(t *testing.T) {
 	grps[2] = new(gpmodel.Group)
 	grps[2].Name = "p2"
 	grps[2].AddChild(new(gpmodel.Group))
-	gw.tree.children = grps
+	gw.SetGroups(grps)
 	gw.ExpandAll()
 	gw.SelectLast()
-	if gw.selectedNode != grps[2].Items[0] {
-		t.Fatalf("Not at last p2 c0 : %s\n", gw.selectedNode.Name)
+	if gw.selectedNode != gw.tree.children[2].children[0] {
+		t.Fatalf("Not at last p2 c0 : %s\n", gw.selectedNode.label)
 	}
 
 	gw.MoveUp()
-	if gw.selectedNode != grps[2] {
-		t.Fatalf("Not p 2 : %s\n", gw.selectedNode.Name)
+	if gw.selectedNode != gw.tree.children[2] {
+		t.Fatalf("Not p 2 : %s\n", gw.selectedNode.label)
 	}
 	gw.MoveUp()
-	if gw.selectedNode != grps[1].Items[0] {
-		t.Fatalf("Not p 1 c 0 : %s\n", gw.selectedNode.Name)
+	if gw.selectedNode != gw.tree.children[1].children[0] {
+		t.Fatalf("Not p 1 c 0 : %s\n", gw.selectedNode.label)
 	}
 	gw.MoveUp()
-	if gw.selectedNode != grps[1] {
+	if gw.selectedNode != gw.tree.children[1] {
 		t.Fatal("Not p 1")
 	}
 	gw.MoveUp()
-	if gw.selectedNode != grps[0].Items[0] {
+	if gw.selectedNode != gw.tree.children[0].children[0] {
 		t.Fatal("Not p 0 c 0")
 	}
 	gw.MoveUp()
-	if gw.selectedNode != grps[0] {
+	if gw.selectedNode != gw.tree.children[0] {
 		t.Fatal("Not p 0")
 	}
 	gw.MoveUp()
-	if gw.selectedNode != grps[0] {
+	if gw.selectedNode != gw.tree.children[0] {
 		t.Fatal("Not still p 0")
 	}
 }
+ */
 
-*/
