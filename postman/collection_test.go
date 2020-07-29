@@ -64,6 +64,8 @@ func TestCollection_wireCollection_simple(t *testing.T) {
 
 func TestCollection_wireCollection_TwoReqs(t *testing.T) {
 	pc := Collection{}
+	pc.Info = new(CollectionInfo)
+	pc.Info.Name = "coll name"
 	pc.Items = make([]*Collection, 2)
 	pc.Items[0] = new(Collection)
 	r1 := new(Request)
@@ -78,6 +80,9 @@ func TestCollection_wireCollection_TwoReqs(t *testing.T) {
 	pc.Items[1].Request = r2
 
 	gp := wireCollection(nil, &pc)
+	if gp.Name != "coll name" {
+		t.Fatal("Group name should be 'coll name' not", gp.Name)
+	}
 	if len(gp.Children) != 0 {
 		t.Fatal("Len children should be zero not", len(gp.Children))
 	}
@@ -86,6 +91,12 @@ func TestCollection_wireCollection_TwoReqs(t *testing.T) {
 	}
 	if gp.Requests[0].Method != "GET" {
 		t.Fatal("Req 0 method should be GET")
+	}
+	if gp.Requests[0].Name != "Get req 1" {
+		t.Fatal("Req 0 not named properly", gp.Requests[0].Name)
+	}
+	if gp.Requests[1].Name != "Get req 2" {
+		t.Fatal("Req 1 not named properly", gp.Requests[1].Name)
 	}
 }
 

@@ -2,7 +2,6 @@ package postman
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/cacarpenter/gopostal/gpmodel"
 	"io/ioutil"
 	"log"
@@ -40,35 +39,26 @@ func ParseCollection(filename string) (*gpmodel.Group, error) {
 }
 
 func wireCollection(parent *gpmodel.Group, pc *Collection) *gpmodel.Group {
-	fmt.Println("Setting group name to", pc.Label())
 	if pc.Request != nil {
-		fmt.Println("Found request", pc.Request)
 		if parent == nil {
 			log.Panicln("Cannot set request on nil parent")
 		}
-		fmt.Println("Set request label to parent name", parent.Name)
 		reqSpec := NewRequestSpec(pc.Request)
-		reqSpec.Name = parent.Name
+		reqSpec.Name = pc.Label()
 		parent.Requests = append(parent.Requests, reqSpec)
 		return parent
 	}
-	fmt.Println("No request on ", pc.Label(), " look for items")
 	var p *gpmodel.Group
 	if parent == nil {
-		fmt.Println("Creating new parent")
 		p = new(gpmodel.Group)
 	} else {
-		fmt.Println("Using parent ", parent.Name)
 		p = parent
 	}
 	p.Name = pc.Label()
-	fmt.Println("Recur on ", len(pc.Items))
 	for _, childColl := range pc.Items {
 		if childColl.Request != nil {
-			fmt.Println("Found request on ", childColl.Label())
 			wireCollection(p, childColl)
 		} else {
-			fmt.Println("New Group for ", childColl.Name)
 			grp := new(gpmodel.Group)
 			wireCollection(grp, childColl)
 			p.AddChild(grp)
