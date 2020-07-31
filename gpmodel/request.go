@@ -6,8 +6,14 @@ type RequestSpec struct {
 	UrlPattern string
 	Headers    []Header
 	Body       string
+	PostScript Script
 }
 
 type Header struct {
 	Key, Value string
+}
+
+type Script struct {
+	Type string
+	Text string
 }

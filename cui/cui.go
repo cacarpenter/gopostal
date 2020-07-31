@@ -69,13 +69,6 @@ A layout based on the golden ratio sort of
 func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 
-	/*
-		if state.openCollection == nil {
-			renderError(g, "No File Open")
-			return nil
-		}
-	*/
-
 	// golden-ish ratio
 	remainder := int(float64(maxX) - float64(maxY)*2.5)
 	leftWidthAdd := 6
@@ -152,16 +145,6 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 
 func (ui *ConsoleUI) SetGroups(grps []*gpmodel.Group) {
 	ui.groupsWidget.SetGroups(grps)
-	/*
-	ui.groupsWidget.groups = grps
-	if len(grps) > 0 {
-		grps[0].SetSelected(true)
-		ui.groupsWidget.selectedGroup = grps[0]
-		for _, g := range grps {
-			g.ToggleExpanded()
-		}
-	}
-	 */
 }
 
 func (ui *ConsoleUI) UpdateVariables(vars map[string]string) {

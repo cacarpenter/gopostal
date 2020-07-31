@@ -1,6 +1,7 @@
 package postman
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/cacarpenter/gopostal/gpmodel"
 	"io/ioutil"
@@ -45,6 +46,16 @@ func wireCollection(parent *gpmodel.Group, pc *Collection) *gpmodel.Group {
 		}
 		reqSpec := NewRequestSpec(pc.Request)
 		reqSpec.Name = pc.Label()
+
+		for _, ev := range pc.Events {
+			var buf bytes.Buffer
+			for _, l := range ev.Script.Lines {
+				buf.WriteString(l)
+				buf.WriteString("\n")
+			}
+			reqSpec.PostScript = gpmodel.Script{ev.Script.Type, buf.String()}
+		}
+
 		parent.Requests = append(parent.Requests, reqSpec)
 		return parent
 	}

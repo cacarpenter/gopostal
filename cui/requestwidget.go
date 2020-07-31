@@ -34,13 +34,6 @@ func (rw *RequestWidget) Layout(v *gocui.View) {
 	fmt.Fprintln(v, r.Body)
 	fmt.Fprintln(v, colorYellow, "---------- Script ------------------", colorReset)
 	fmt.Fprint(v, colorBlue)
-	/*
-	for _, ev := range rw.collection.Events {
-		for _, script := range ev.Script.Lines {
-			fmt.Fprintln(v, script)
-		}
-	}
-	 */
-	fmt.Fprintln(v, "TODO script here")
+	fmt.Fprintln(v, r.PostScript.Text)
 	fmt.Fprintln(v, colorReset)
 }
