@@ -169,3 +169,11 @@ func (ui *ConsoleUI) ScrollUp() {
 func (ui *ConsoleUI) ScrollDown() {
 	ui.Logger.Println("ScrollDown")
 }
+
+func (ui *ConsoleUI) IsRequestSelected() bool {
+	return ui.groupsWidget.selectedNode != nil && ui.groupsWidget.selectedNode.request != nil
+}
+
+func (ui *ConsoleUI) SelectedRequest() *gpmodel.RequestSpec {
+	return ui.groupsWidget.selectedNode.request
+}

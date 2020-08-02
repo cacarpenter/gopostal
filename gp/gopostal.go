@@ -46,26 +46,16 @@ func New() *GoPostal {
 }
 
 func (app *GoPostal) ExecCurrentSelection(w io.Writer) {
-	/*
-		pmColl := app.ui.SelectedCollection()
-		if pmColl != nil && pmColl.Request != nil {
-			response, err := app.CallRequest(pmColl.Request, app.logger.Writer())
+	if app.ui.IsRequestSelected() {
+		req := app.ui.SelectedRequest()
+		response, err := app.CallRequest(req, app.logger.Writer())
 
-			if err != nil {
-				app.logger.Panicln(err)
-			}
-
-			for _, ev := range pmColl.Events {
-				var buf bytes.Buffer
-				for _, l := range ev.Script.Lines {
-					buf.WriteString(l)
-					buf.WriteString("\n")
-				}
-				app.RunJavaScript(buf.String(), *response)
-			}
-			// app.ui.Layout
+		if err != nil {
+			app.logger.Fatal(err)
+		} else {
+			app.RunJavaScript(req.PostScript.Text, *response)
 		}
-	*/
+	}
 }
 
 func (app *GoPostal) SetPostmanEnvironments(environments []*postman.Environment) {

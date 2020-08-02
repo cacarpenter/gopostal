@@ -25,6 +25,7 @@ func Print(coll *Collection) {
 func NewRequestSpec(pmReq *Request) *gpmodel.RequestSpec {
 	rs := new(gpmodel.RequestSpec)
 	rs.Method = pmReq.Method
+	rs.UrlPattern = pmReq.Url.Raw
 	if pmReq.Body != nil {
 		rs.Body = pmReq.Body.Raw
 	}
