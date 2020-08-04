@@ -164,7 +164,6 @@ func (gw *GroupsWidget) MoveUp() {
 
 func (gw *GroupsWidget) MoveDown() {
 	l := gw.Logger
-	l.Println("MoveDown")
 	var nextNode *gwNode
 	if gw.selectedNode == nil {
 		gw.Logger.Println("no current selection")
@@ -172,34 +171,23 @@ func (gw *GroupsWidget) MoveDown() {
 	}
 	l.Println("MoveDown: Current Selection is ", gw.selectedNode.label)
 	if gw.selectedNode.expanded && len(gw.selectedNode.children) > 0 {
-		l.Println("MoveDown. current expanded and has children. return first child")
 		nextNode = gw.selectedNode.children[0]
 	} else {
-		l.Println("MoveDown: Current not expanded, look for the next sibling")
-		l.Println("MoveDown: parent is ", gw.selectedNode.parent)
 		nextSib := gw.selectedNode.nextSibling()
 		if nextSib != nil {
 			nextNode = nextSib
 		} else if gw.selectedNode.parent != nil {
-			l.Println("Selected Parent is", gw.selectedNode.parent.label)
 			parentSib := gw.selectedNode.parent.nextSibling()
 			if parentSib != nil {
-				l.Println("Found parent next sib")
 				nextNode = parentSib
-			} else {
-				l.Println("No parent next sib")
 			}
-		} else {
-			gw.Logger.Println("No parent and no next sib")
 		}
 	}
 	if nextNode != nil {
-		gw.Logger.Println("Setting next item to ", nextNode.label)
+		l.Println("Setting next item to ", nextNode.label)
 		gw.selectedNode.selected = false
 		nextNode.selected = true
 		gw.selectedNode = nextNode
-	} else {
-		gw.Logger.Println("moveDown: No nextItem")
 	}
 }
 
