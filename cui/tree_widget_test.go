@@ -7,10 +7,10 @@ import (
 	"testing"
 )
 
-func setUp() *GroupsWidget {
-	gw := &GroupsWidget{}
+func setUp() *TreeWidget {
+	gw := &TreeWidget{}
 	gw.Logger = log.New(os.Stdout, "", 0)
-	gw.tree = new(gwNode)
+	gw.tree = new(treeNode)
 	return gw
 }
 
@@ -21,8 +21,8 @@ func TestGroupsWidget_MoveDown_Empty(t *testing.T) {
 
 func TestGroupsWidget_MoveDown_SingleCollection(t *testing.T) {
 	gw := setUp()
-	gw.tree.children = make([]*gwNode, 1)
-	gw.tree.children[0] = new(gwNode)
+	gw.tree.children = make([]*treeNode, 1)
+	gw.tree.children[0] = new(treeNode)
 	gw.selectedNode = gw.tree.children[0]
 	gw.MoveDown()
 	if gw.selectedNode != gw.tree.children[0] {

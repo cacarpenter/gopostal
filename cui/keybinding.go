@@ -59,20 +59,20 @@ func (ui *ConsoleUI) keybindings(g *gocui.Gui) error {
 	return nil
 }
 
-func (ui *ConsoleUI) updateGroupsWidget(g *gocui.Gui, f func(gw *GroupsWidget)) error {
+func (ui *ConsoleUI) updateTreeWidget(g *gocui.Gui, f func(*TreeWidget)) error {
 	tv, err := g.View(treeViewName)
 	if err != nil {
 		ui.Logger.Println("Error getting tree view", err)
 		return err
 	}
-	f(ui.groupsWidget)
-	ui.groupsWidget.Layout(tv)
+	f(ui.treeWidget)
+	ui.treeWidget.Layout(tv)
 	rv, err := g.View(requestViewName)
 	if err != nil {
 		return err
 	}
-	if ui.groupsWidget.selectedNode != nil {
-		ui.requestWidget.request = ui.groupsWidget.selectedNode.request
+	if ui.treeWidget.selectedNode != nil {
+		ui.requestWidget.request = ui.treeWidget.selectedNode.request
 	}
 	ui.requestWidget.Layout(rv)
 	return nil
@@ -88,7 +88,7 @@ func (ui *ConsoleUI) cursorDown(g *gocui.Gui, v *gocui.View) error {
 			fmt.Fprintln(cv, "this is the current non nil view")
 		}
 	}
-	err := ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
+	err := ui.updateTreeWidget(g, func(gw *TreeWidget) {
 		gw.MoveDown()
 	})
 	if err != nil {
@@ -102,25 +102,25 @@ func (ui *ConsoleUI) cursorUp(g *gocui.Gui, v *gocui.View) error {
 		cx, cy := v.Cursor()
 		fmt.Fprintf(v, "%d %d\n", cx, cy)
 	}
-	return ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
+	return ui.updateTreeWidget(g, func(gw *TreeWidget) {
 		gw.MoveUp()
 	})
 }
 
 func (ui *ConsoleUI) toggleExpand(g *gocui.Gui, v *gocui.View) error {
-	return ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
+	return ui.updateTreeWidget(g, func(gw *TreeWidget) {
 		gw.ToggleExpanded()
 	})
 }
 
 func (ui *ConsoleUI) expandAll(g *gocui.Gui, v *gocui.View) error {
-	return ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
+	return ui.updateTreeWidget(g, func(gw *TreeWidget) {
 		gw.ExpandAll()
 	})
 }
 
 func (ui *ConsoleUI) collapseAll(g *gocui.Gui, v *gocui.View) error {
-	return ui.updateGroupsWidget(g, func(gw *GroupsWidget) {
+	return ui.updateTreeWidget(g, func(gw *TreeWidget) {
 		gw.CollapseAll()
 	})
 }

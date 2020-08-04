@@ -28,7 +28,7 @@ const (
 )
 
 type ConsoleUI struct {
-	groupsWidget    *GroupsWidget
+	treeWidget      *TreeWidget
 	requestWidget   *RequestWidget
 	variablesWidget *VariablesWidget
 	*log.Logger
@@ -37,11 +37,11 @@ type ConsoleUI struct {
 
 func NewConsoleUI(logger *log.Logger) *ConsoleUI {
 	ui := ConsoleUI{}
-	ui.groupsWidget = &GroupsWidget{}
+	ui.treeWidget = &TreeWidget{}
 	ui.requestWidget = &RequestWidget{}
 	ui.variablesWidget = &VariablesWidget{}
 	ui.Logger = logger
-	ui.groupsWidget.Logger = logger
+	ui.treeWidget.Logger = logger
 	return &ui
 }
 
@@ -102,7 +102,7 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		ui.groupsWidget.Layout(treeView)
+		ui.treeWidget.Layout(treeView)
 	}
 	if requestView, err := g.SetView(requestViewName, requestX0, requestY0, requestX1, requestY1); err != nil {
 		if err != gocui.ErrUnknownView {
@@ -144,7 +144,7 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (ui *ConsoleUI) SetGroups(grps []*gpmodel.Group) {
-	ui.groupsWidget.SetGroups(grps)
+	ui.treeWidget.SetGroups(grps)
 }
 
 func (ui *ConsoleUI) UpdateVariables(vars map[string]string) {
@@ -171,9 +171,9 @@ func (ui *ConsoleUI) ScrollDown() {
 }
 
 func (ui *ConsoleUI) IsRequestSelected() bool {
-	return ui.groupsWidget.selectedNode != nil && ui.groupsWidget.selectedNode.request != nil
+	return ui.treeWidget.selectedNode != nil && ui.treeWidget.selectedNode.request != nil
 }
 
 func (ui *ConsoleUI) SelectedRequest() *gpmodel.RequestSpec {
-	return ui.groupsWidget.selectedNode.request
+	return ui.treeWidget.selectedNode.request
 }

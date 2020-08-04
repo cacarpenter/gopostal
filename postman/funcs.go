@@ -26,6 +26,10 @@ func NewRequestSpec(pmReq *Request) *gpmodel.RequestSpec {
 	rs := new(gpmodel.RequestSpec)
 	rs.Method = pmReq.Method
 	rs.UrlPattern = pmReq.Url.Raw
+	rs.Headers = make([]gpmodel.Header, len(pmReq.Header))
+	for i, pmHeader := range pmReq.Header {
+		rs.Headers[i] = gpmodel.Header{Key: pmHeader.Key, Value: pmHeader.Value}
+	}
 	if pmReq.Body != nil {
 		rs.Body = pmReq.Body.Raw
 	}
