@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cacarpenter/gopostal/gpmodel"
 	"github.com/jroimartin/gocui"
+	"io"
 	"log"
 )
 
@@ -14,6 +15,14 @@ const (
 	ArrowRightOpen = '\u1405'
 )
 
+type TreeWidget struct {
+	*log.Logger
+	tree         *treeNode
+	selectedNode *treeNode
+	selectedRow  int
+	maxRows      int // changes based on expanded children
+}
+
 type treeNode struct {
 	label              string
 	parent             *treeNode
@@ -22,18 +31,43 @@ type treeNode struct {
 	expanded, selected bool
 }
 
-func (n *treeNode) expand(exp, recursive bool) {
-	n.expanded = exp
-	if recursive {
-		for _, ch := range n.children {
-			ch.expand(exp, recursive)
+func (n *treeNode) print(w io.Writer,pad string) {
+	if n.selected {
+		fmt.Fprintf(w, "%c", SelectIcon)
+	} else {
+		fmt.Fprint(w, " ")
+	}
+	fmt.Fprint(w, pad)
+	if n.request != nil {
+		fmt.Fprint(w, "[", colorCyan, n.request.Method, colorReset, "] ")
+		if n.selected {
+			fmt.Fprintf(w, "%s%s%s\n", colorGreen, n.label, colorReset)
+		} else {
+			fmt.Fprintln(w, n.label)
 		}
 	}
 }
 
-func (n *treeNode) toggleExpanded() bool {
+func (n *treeNode) expand(exp, recursive bool) int {
+	n.expanded = exp
+	nodesAdded := len(n.children)
+	if recursive {
+		for _, ch := range n.children {
+			nodesAdded += ch.expand(exp, recursive)
+		}
+	}
+	return nodesAdded
+}
+
+func (n *treeNode) toggleExpanded() int {
 	n.expanded = !n.expanded
-	return n.expanded
+	// FIX ME this is not right as it depends on whether the children are expanded, and their children etc. Need another recursive function
+	nodeChange := len(n.children)
+	// node isn't expanded so the change is negative
+	if !n.expanded {
+		nodeChange *= -1
+	}
+	return nodeChange
 }
 
 func (n *treeNode) nextSibling() *treeNode {
@@ -65,18 +99,15 @@ func (n *treeNode) prevSibling() *treeNode {
 	return prev
 }
 
-type TreeWidget struct {
-	*log.Logger
-	tree         *treeNode
-	selectedNode *treeNode
-}
-
 func (tw *TreeWidget) Layout(v *gocui.View) {
 	v.Clear()
 	if tw.tree == nil {
 		tw.Logger.Println("No tree set, nothing to layout")
 		return
 	}
+	cx, cy := v.Cursor()
+	tw.Logger.Printf("Layout at %d %d\n", cx, cy)
+	numPrinted := 0
 	for _, grp := range tw.tree.children {
 		maxItemNameLength := 0
 		for _, n := range grp.children {
@@ -85,27 +116,46 @@ func (tw *TreeWidget) Layout(v *gocui.View) {
 			}
 		}
 		maxItemNameLength = maxItemNameLength/2 + 1
-		// cx, cy := v.Cursor()
-		// fmt.Fprintln(v, cx, cy)
-		printNode(v, "", grp)
+		numPrinted += printNode(v, grp, "", cy)
 	}
+	tw.Logger.Printf("Layout printed %d rows\n", numPrinted)
 }
 
-func printNode(v *gocui.View, pad string, node *treeNode) {
-	if node.selected {
-		fmt.Fprintf(v, "%c", SelectIcon)
-	} else {
-		fmt.Fprint(v, " ")
+func printNode2(w io.Writer, node *treeNode, pad string, skipCount int) int {
+	numSkipped := 0
+	numPrinted := 0
+	if numSkipped >= skipCount {
+		node.print(w, pad)
+		numPrinted++
 	}
-	fmt.Fprint(v, pad)
-	if node.request != nil {
-		fmt.Fprint(v, "[", colorCyan, node.request.Method, colorReset, "] ")
+	return numPrinted
+}
+
+func printNode(v *gocui.View, node *treeNode, pad string, skipCount int) int {
+	numSkipped := 0
+	numPrinted := 0
+	// print or skip the header
+	if numSkipped >= skipCount {
 		if node.selected {
-			fmt.Fprintf(v, "%s%s%s\n", colorGreen, node.label, colorReset)
+			fmt.Fprintf(v, "%c", SelectIcon)
 		} else {
-			fmt.Fprintln(v, node.label)
+			fmt.Fprint(v, " ")
 		}
-	} else if len(node.children) > 0 {
+		fmt.Fprint(v, pad)
+		if node.request != nil {
+			fmt.Fprint(v, "[", colorCyan, node.request.Method, colorReset, "] ")
+			if node.selected {
+				fmt.Fprintf(v, "%s%s%s\n", colorGreen, node.label, colorReset)
+			} else {
+				fmt.Fprintln(v, node.label)
+			}
+			return 1
+		}
+		numPrinted++
+	} else {
+		numSkipped++
+	}
+	if len(node.children) > 0 {
 		chev := ArrowRightOpen
 		if node.expanded {
 			chev = ArrowDownOpen
@@ -118,12 +168,11 @@ func printNode(v *gocui.View, pad string, node *treeNode) {
 		}
 		if node.expanded {
 			for _, child := range node.children {
-				printNode(v, pad+" ", child)
+				numPrinted += printNode(v, child, pad+" ", skipCount - numSkipped)
 			}
 		}
-	} else {
-		fmt.Fprintln(v, "?")
 	}
+	return numPrinted
 }
 
 func (tw *TreeWidget) MoveUp() {
@@ -157,8 +206,8 @@ func (tw *TreeWidget) MoveUp() {
 		tw.selectedNode.selected = false
 		nextItem.selected = true
 		tw.selectedNode = nextItem
-	} else {
-		tw.Logger.Println("MoveUp: No nextItem")
+		tw.selectedRow--
+		tw.Logger.Printf("MoveUp: selected for now %d\n", tw.selectedRow)
 	}
 }
 
@@ -188,6 +237,10 @@ func (tw *TreeWidget) MoveDown() {
 		tw.selectedNode.selected = false
 		nextNode.selected = true
 		tw.selectedNode = nextNode
+		tw.selectedRow++
+		tw.Logger.Printf("MoveDown: selected for now %d\n", tw.selectedRow)
+
+		// we may need to scroll
 	}
 }
 
@@ -212,16 +265,26 @@ func (tw *TreeWidget) ExpandAll() {
 func (tw *TreeWidget) ToggleExpanded() {
 	tw.Logger.Println("ToggleExpanded")
 	if tw.selectedNode != nil {
-		tw.selectedNode.toggleExpanded()
+		tw.maxRows = tw.maxRows + tw.selectedNode.toggleExpanded()
+		tw.Logger.Printf("ToggleExpanded: MaxRows is now %d\n", tw.maxRows)
 	}
 }
 
 func (tw *TreeWidget) SelectLast() {
+	// nothing to do
+	if len(tw.tree.children) < 1 {
+		return
+	}
+	lastRootChild := tw.tree.children[len(tw.tree.children)-1]
+	if tw.selectedNode != nil {
+		tw.selectedNode.selected = false
+	}
+    tw.selectedNode = lastRootChild
+    tw.selectedNode.selected = true
 	/*
-	if len(tw.tree.children) > 0 {}
 	lastChildIdx := len(tw.tree.children) - 1
-	rootColl := tw.groups[tw.currentGroupIdx]
-	tw.selectedGroup = rootColl.LastExpandedDescendent()
+		rootColl := tw.groups[tw.currentGroupIdx]
+		tw.selectedGroup = rootColl.LastExpandedDescendent()
 	 */
 }
 
@@ -232,15 +295,19 @@ func (tw *TreeWidget) SetGroups(gps []*gpmodel.Group) {
 	}
 	t := new(treeNode)
 	t.children = make([]*treeNode, len(gps))
+	numNodes := len(gps)
 	for i, g := range gps {
 		t.children[i] = group2node(g)
 		t.children[i].parent = t
-		t.children[i].expanded = true
+		numNodes += t.children[i].expand(true, false)
 	}
 	tw.tree = t
 	tw.tree.label = "root" // won't be shown in UI but useful for testing
 	tw.selectedNode = t.children[0]
 	tw.selectedNode.selected = true
+	tw.selectedRow = 0
+	tw.maxRows = numNodes
+	tw.Logger.Printf("TreeWidget has %d current max nodes\n", tw.maxRows)
 }
 
 func group2node(group *gpmodel.Group) *treeNode {
