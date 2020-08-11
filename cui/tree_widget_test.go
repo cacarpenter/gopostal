@@ -123,6 +123,7 @@ func TestGroupsWidget_MoveDown_ThreeCollsOneDescendentEach(t *testing.T) {
 	}
 }
 
+/*
 func TestGroupsWidget_MoveUp_ThreeCollsOneDescendentEach(t *testing.T) {
 	gw := setUp()
 	grps := make([]*gpmodel.Group, 3)
@@ -167,3 +168,5 @@ func TestGroupsWidget_MoveUp_ThreeCollsOneDescendentEach(t *testing.T) {
 		t.Fatal("Not still p 0")
 	}
 }
+
+ */
