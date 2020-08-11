@@ -168,5 +168,5 @@ func TestGroupsWidget_MoveUp_ThreeCollsOneDescendentEach(t *testing.T) {
 		t.Fatal("Not still p 0")
 	}
 }
- */
 
+ */

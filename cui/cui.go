@@ -12,7 +12,7 @@ import (
 const (
 	treeViewName      = "tree"
 	requestViewName   = "request"
-	debugViewName     = "debug"
+	responseViewName     = "response"
 	errorViewName     = "error"
 	variablesViewName = "variables"
 
@@ -89,10 +89,10 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 	requestX1 := maxX - 1
 	requestY1 := maxY - (maxY / 4) - 1
 
-	debugX0 := remainder
-	debugY0 := maxY - (maxY / 4)
-	debugX1 := maxX - 1
-	debugY1 := maxY - 1
+	responseX0 := remainder
+	responseY0 := maxY - (maxY / 4)
+	responseX1 := maxX - 1
+	responseY1 := maxY - 1
 
 	if treeView, err := g.SetView(treeViewName, treeX0, treeY0, treeX1, treeY1); err != nil {
 		treeView.Title = "Tree"
@@ -119,11 +119,11 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 		// fmt.Fprintf(variablesView, "v:  %d %d X %d %d", variablesX0, variablesY0, variablesX1, variablesY1)
 		ui.variablesWidget.Layout(variablesView)
 	}
-	if debugView, err := g.SetView(debugViewName, debugX0, debugY0, debugX1, debugY1); err != nil {
+	if responseView, err := g.SetView(responseViewName, responseX0, responseY0, responseX1, responseY1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		debugView.Title = "Debug"
+		responseView.Title = "Response"
 	}
 	return nil
 }
