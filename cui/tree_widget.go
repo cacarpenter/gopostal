@@ -140,15 +140,16 @@ func (tw *TreeWidget) Layout(v *gocui.View) {
 	}
 	ox, oy := v.Origin()
 	_, sy := v.Size()
-	// tw.Logger.Printf("Layout| Cursor %d,%d | Size %d,%d| Origin %d,%d | selected %d\n", cx, cy, sx, sy, ox, oy, tw.selectedRow)
+	// tw.Logger.Printf("Layout| Size %d,%d| Origin %d,%d | selected %d\n", sx, sy, ox, oy, tw.selectedRow)
 
 	// handle scrolling
-	if tw.selectedRow+1-oy > sy {
+	if tw.selectedRow < oy {
+		// selected row is "above" tree, set the origin to the selected row
+		v.SetOrigin(ox, tw.selectedRow)
+	} else if tw.selectedRow+1-oy > sy { // scroll down
+		// TODO really this should be a calculation like selectedRow - oy
 		v.SetOrigin(ox, oy+1)
-	} else if tw.selectedRow-oy < 0 {
-		v.SetOrigin(ox, oy-1)
 	}
-	numPrinted := 0
 	for _, grp := range tw.tree.children {
 		maxItemNameLength := 0
 		for _, n := range grp.children {
@@ -157,14 +158,12 @@ func (tw *TreeWidget) Layout(v *gocui.View) {
 			}
 		}
 		maxItemNameLength = maxItemNameLength/2 + 1
-		numPrinted += printNode(v, grp, " ")
+		printNode(v, grp, " ")
 	}
 }
 
-func printNode(w io.Writer, node *treeNode, pad string) int {
-	numPrinted := 0
+func printNode(w io.Writer, node *treeNode, pad string) {
 	node.print(w, pad)
-	numPrinted++
 
 	if len(node.children) > 0 {
 		chev := ArrowRightOpen
@@ -179,12 +178,11 @@ func printNode(w io.Writer, node *treeNode, pad string) int {
 		}
 		if node.expanded {
 			for _, child := range node.children {
-				numPrinted += printNode(w, child, pad+pad)
+				printNode(w, child, pad+pad)
 			}
 		}
 	}
 
-	return numPrinted
 }
 
 func (tw *TreeWidget) MoveUp() {
