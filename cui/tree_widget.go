@@ -100,6 +100,23 @@ func (n *treeNode) nextSibling() *treeNode {
 	return nil
 }
 
+func (n *treeNode) nextRelative() *treeNode {
+	if n.parent == nil {
+		return nil
+	}
+	var nextRel *treeNode
+	nextSib := n.nextSibling()
+	if nextSib != nil {
+		nextRel = nextSib
+	} else {
+		parentNextRel := n.parent.nextRelative()
+		if parentNextRel != nil {
+			return parentNextRel
+		}
+	}
+	return nextRel
+}
+
 func (n *treeNode) prevSibling() *treeNode {
 	// this is the root
 	if n.parent == nil {
@@ -122,9 +139,8 @@ func (tw *TreeWidget) Layout(v *gocui.View) {
 		return
 	}
 	ox, oy := v.Origin()
-	cx, cy := v.Cursor()
-	sx, sy := v.Size()
-	tw.Logger.Printf("Layout| Cursor %d,%d | Size %d,%d| Origin %d,%d | selected %d\n", cx, cy, sx, sy, ox, oy, tw.selectedRow)
+	_, sy := v.Size()
+	// tw.Logger.Printf("Layout| Cursor %d,%d | Size %d,%d| Origin %d,%d | selected %d\n", cx, cy, sx, sy, ox, oy, tw.selectedRow)
 
 	// handle scrolling
 	if tw.selectedRow+1-oy > sy {
@@ -143,7 +159,6 @@ func (tw *TreeWidget) Layout(v *gocui.View) {
 		maxItemNameLength = maxItemNameLength/2 + 1
 		numPrinted += printNode(v, grp, " ")
 	}
-	tw.Logger.Printf("Layout printed %d rows\n", numPrinted)
 }
 
 func printNode(w io.Writer, node *treeNode, pad string) int {
@@ -173,15 +188,12 @@ func printNode(w io.Writer, node *treeNode, pad string) int {
 }
 
 func (tw *TreeWidget) MoveUp() {
-	tw.Logger.Println("moveUp")
 	if tw.selectedNode == nil {
-		tw.Logger.Println("MoveUp: Nothing selected")
 		return
 	}
 	var nextItem *treeNode
 	prevSib := tw.selectedNode.prevSibling()
 	if prevSib != nil {
-		tw.Logger.Println("MoveUp: No previous sibling")
 		if prevSib.expanded {
 			if len(prevSib.children) > 0 {
 				nextItem = prevSib.children[len(prevSib.children)-1]
@@ -204,41 +216,31 @@ func (tw *TreeWidget) MoveUp() {
 		nextItem.selected = true
 		tw.selectedNode = nextItem
 		tw.selectedRow--
-		tw.Logger.Printf("MoveUp: selected for now %d\n", tw.selectedRow)
+		// tw.Logger.Printf("MoveUp: selected for now %d\n", tw.selectedRow)
 	}
 }
 
 func (tw *TreeWidget) MoveDown() {
-	l := tw.Logger
+	// l := tw.Logger
 	var nextNode *treeNode
 	if tw.selectedNode == nil {
-		tw.Logger.Println("no current selection")
+		tw.Logger.Println("Cannot move: no current selection")
 		return
 	}
-	l.Println("MoveDown: Current Selection is ", tw.selectedNode.label)
+	// l.Println("MoveDown: Current Selection is ", tw.selectedNode.label)
 	if tw.selectedNode.expanded && len(tw.selectedNode.children) > 0 {
-		l.Println("expanding with children, so selecting the first child")
+		// l.Println("expanding with children, so selecting the first child")
 		nextNode = tw.selectedNode.children[0]
 	} else {
-		nextSib := tw.selectedNode.nextSibling()
-		if nextSib != nil {
-			nextNode = nextSib
-		} else if tw.selectedNode.parent != nil {
-			parentSib := tw.selectedNode.parent.nextSibling()
-			if parentSib != nil {
-				nextNode = parentSib
-			}
-		}
+		nextNode = tw.selectedNode.nextRelative()
 	}
 	if nextNode != nil {
-		l.Println("Setting next item to ", nextNode.label)
+		// l.Println("Setting next item to ", nextNode.label)
 		tw.selectedNode.selected = false
 		nextNode.selected = true
 		tw.selectedNode = nextNode
 		tw.selectedRow++
-		tw.Logger.Printf("MoveDown: selected for now %d\n", tw.selectedRow)
-
-		// we may need to scroll
+		// l.Printf("MoveDown: selected for now %d\n", tw.selectedRow)
 	}
 }
 
@@ -261,10 +263,9 @@ func (tw *TreeWidget) ExpandAll() {
 }
 
 func (tw *TreeWidget) ToggleExpanded() {
-	tw.Logger.Println("ToggleExpanded")
 	if tw.selectedNode != nil {
 		tw.maxRows = tw.maxRows + tw.selectedNode.toggleExpanded()
-		tw.Logger.Printf("ToggleExpanded: MaxRows is now %d\n", tw.maxRows)
+		// tw.Logger.Printf("ToggleExpanded: MaxRows is now %d\n", tw.maxRows)
 	}
 }
 

@@ -37,9 +37,10 @@ type ConsoleUI struct {
 
 func NewConsoleUI(logger *log.Logger) *ConsoleUI {
 	ui := ConsoleUI{}
-	ui.treeWidget = &TreeWidget{}
-	ui.requestWidget = &RequestWidget{}
-	ui.variablesWidget = &VariablesWidget{}
+	ui.treeWidget = new(TreeWidget)
+	ui.requestWidget = new(RequestWidget)
+	ui.responseWidget = new(ResponseWidget)
+	ui.variablesWidget = new(VariablesWidget)
 	ui.Logger = logger
 	ui.treeWidget.Logger = logger
 	return &ui
