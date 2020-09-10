@@ -12,7 +12,7 @@ import (
 const (
 	treeViewName      = "tree"
 	requestViewName   = "request"
-	responseViewName     = "response"
+	responseViewName  = "response"
 	errorViewName     = "error"
 	variablesViewName = "variables"
 
@@ -31,6 +31,7 @@ type ConsoleUI struct {
 	treeWidget      *TreeWidget
 	requestWidget   *RequestWidget
 	variablesWidget *VariablesWidget
+	responseWidget  *ResponseWidget
 	*log.Logger
 	execFunc func(w io.Writer)
 }

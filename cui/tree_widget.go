@@ -20,7 +20,6 @@ type TreeWidget struct {
 	tree         *treeNode
 	selectedNode *treeNode
 	selectedRow  int
-	maxRows      int // changes based on expanded children
 }
 
 type treeNode struct {
@@ -75,15 +74,26 @@ func (n *treeNode) expand(exp, recursive bool) int {
 	return nodesAdded
 }
 
-func (n *treeNode) toggleExpanded() int {
+func (n *treeNode) toggleExpanded() {
 	n.expanded = !n.expanded
-	// FIX ME this is not right as it depends on whether the children are expanded, and their children etc. Need another recursive function
-	nodeChange := len(n.children)
-	// node isn't expanded so the change is negative
-	if !n.expanded {
-		nodeChange *= -1
+}
+
+func (n *treeNode) lastChild() *treeNode {
+	if len(n.children) > 0 {
+		return n.children[len(n.children)-1]
 	}
-	return nodeChange
+	return nil
+}
+
+func (n *treeNode) lastExpandedDescendant() *treeNode {
+	if !n.expanded {
+		return n
+	}
+	lc := n.lastChild()
+	if lc != nil {
+		return lc.lastExpandedDescendant()
+	}
+	return nil
 }
 
 func (n *treeNode) nextSibling() *treeNode {
@@ -117,6 +127,7 @@ func (n *treeNode) nextRelative() *treeNode {
 	return nextRel
 }
 
+// prevSibling returns nil if you are the first child
 func (n *treeNode) prevSibling() *treeNode {
 	// this is the root
 	if n.parent == nil {
@@ -124,9 +135,11 @@ func (n *treeNode) prevSibling() *treeNode {
 	}
 	var prev *treeNode
 	for _, ch := range n.parent.children {
+		// if this is the child
 		if n == ch {
 			break
 		}
+		// save this child for the next iteration
 		prev = ch
 	}
 	return prev
@@ -189,16 +202,12 @@ func (tw *TreeWidget) MoveUp() {
 	if tw.selectedNode == nil {
 		return
 	}
+
 	var nextItem *treeNode
 	prevSib := tw.selectedNode.prevSibling()
 	if prevSib != nil {
-		if prevSib.expanded {
-			if len(prevSib.children) > 0 {
-				nextItem = prevSib.children[len(prevSib.children)-1]
-			}
-		} else {
-			nextItem = prevSib
-		}
+		tw.Logger.Printf("Prev sib is %q, check for LED", prevSib.label)
+		nextItem = prevSib.lastExpandedDescendant()
 	} else if tw.selectedNode.parent != nil {
 		if tw.selectedNode.parent.expanded {
 			nextItem = tw.selectedNode.parent
@@ -209,12 +218,13 @@ func (tw *TreeWidget) MoveUp() {
 			}
 		}
 	}
+
 	if nextItem != nil {
 		tw.selectedNode.selected = false
 		nextItem.selected = true
 		tw.selectedNode = nextItem
 		tw.selectedRow--
-		// tw.Logger.Printf("MoveUp: selected for now %d\n", tw.selectedRow)
+		tw.Logger.Printf("MoveUp: selected for now %d\n", tw.selectedRow)
 	}
 }
 
@@ -262,8 +272,7 @@ func (tw *TreeWidget) ExpandAll() {
 
 func (tw *TreeWidget) ToggleExpanded() {
 	if tw.selectedNode != nil {
-		tw.maxRows = tw.maxRows + tw.selectedNode.toggleExpanded()
-		// tw.Logger.Printf("ToggleExpanded: MaxRows is now %d\n", tw.maxRows)
+		tw.selectedNode.toggleExpanded()
 	}
 }
 
@@ -303,8 +312,6 @@ func (tw *TreeWidget) SetGroups(gps []*gpmodel.Group) {
 	tw.selectedNode = t.children[0]
 	tw.selectedNode.selected = true
 	tw.selectedRow = 0
-	tw.maxRows = numNodes
-	tw.Logger.Printf("TreeWidget has %d current max nodes\n", tw.maxRows)
 }
 
 func group2node(group *gpmodel.Group) *treeNode {
