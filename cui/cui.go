@@ -27,6 +27,8 @@ const (
 	colorWhite  = "\033[37m"
 )
 
+// ConsoleUI contains the various widgets to run the console based user interface
+//
 type ConsoleUI struct {
 	treeWidget      *TreeWidget
 	requestWidget   *RequestWidget
@@ -36,6 +38,7 @@ type ConsoleUI struct {
 	execFunc func(w io.Writer)
 }
 
+// NewConsoleUI creates a new ConsoleUI instance
 func NewConsoleUI(logger *log.Logger) *ConsoleUI {
 	ui := ConsoleUI{}
 	ui.treeWidget = new(TreeWidget)
@@ -47,6 +50,7 @@ func NewConsoleUI(logger *log.Logger) *ConsoleUI {
 	return &ui
 }
 
+// Run display the console UI
 func (ui *ConsoleUI) Run() {
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
@@ -145,22 +149,27 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
 
+// SetGroups sets the groups to display in the UI
 func (ui *ConsoleUI) SetGroups(grps []*gpmodel.Group) {
 	ui.treeWidget.SetGroups(grps)
 }
 
+// UpdateVariables changes the variables currently displayed
 func (ui *ConsoleUI) UpdateVariables(vars map[string]string) {
 	ui.variablesWidget.SetVariables(util.Map2Array(vars))
 }
 
+// UpdateVariable update a variable in the display
 func (ui *ConsoleUI) UpdateVariable(k, v string) {
 	ui.variablesWidget.SetVariable(k, v)
 }
 
+// SetOnExec which function to call when a node is executed
 func (ui *ConsoleUI) SetOnExec(f func(w io.Writer)) {
 	ui.execFunc = f
 }
 
+// DeleteSelection
 func (ui *ConsoleUI) DeleteSelection() {
 }
 
