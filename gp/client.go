@@ -12,7 +12,8 @@ import (
 )
 
 func (app *GoPostal) CallRequest(reqSpec *gpmodel.RequestSpec, writer io.Writer) (*string, error) {
-	app.logger.Println("Using Request Pattern", reqSpec.UrlPattern)
+	l := app.logger
+	l.Println("Using Request Pattern", reqSpec.UrlPattern)
 	interUrl := util.ReplaceVariables(reqSpec.UrlPattern, app.session.variables)
 	app.logger.Println("calling", interUrl)
 	httpClient := http.Client{}
@@ -29,6 +30,7 @@ func (app *GoPostal) CallRequest(reqSpec *gpmodel.RequestSpec, writer io.Writer)
 			headerKey = "Authorization"
 			headerVal = "Bearer " + headerVal
 		}
+		l.Printf("Setting header %q to %q\n", hdr.Key, headerVal)
 		httpReq.Header.Add(hdr.Key, headerVal)
 	}
 

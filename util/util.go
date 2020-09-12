@@ -8,6 +8,7 @@ import (
 	"regexp"
 )
 
+// ReplaceVariables returns a string with all variables marked with double curly brackets based on the provided map of values
 func ReplaceVariables(raw string, subVals map[string]string) string {
 	r, err := regexp.Compile("\\{\\{\\w+\\}\\}")
 	if err != nil {
@@ -20,7 +21,7 @@ func ReplaceVariables(raw string, subVals map[string]string) string {
 	for _, matchIndices := range fasi {
 		// TODO should be able to remove this
 		if len(matchIndices) != 2 {
-			panic(fmt.Errorf("Thought length would be 2 but it was %d\n", len(matchIndices)))
+			panic(fmt.Errorf("expected length 2 but it was %d", len(matchIndices)))
 		}
 
 		// chars before this match
@@ -41,6 +42,7 @@ func ReplaceVariables(raw string, subVals map[string]string) string {
 	return buffer.String()
 }
 
+// MaxLen returns the length of the longest of the strings s1 and s2
 func MaxLen(s1, s2 string) int {
 	if len(s1) > len(s2) {
 		return len(s1)
@@ -48,6 +50,7 @@ func MaxLen(s1, s2 string) int {
 	return len(s2)
 }
 
+// StringOf returns a string of length l with rune c
 func StringOf(c rune, l int) string {
 	rs := make([]rune, l)
 	for i := 0; i < l; i++ {
@@ -56,10 +59,12 @@ func StringOf(c rune, l int) string {
 	return string(rs)
 }
 
+// Pad returns a string of length l containing string s
 func Pad(s string, l int) string {
 	return fmt.Sprintf("%-*s", l, s)
 }
 
+// Map2Array returns 2 dimensional array from the provided map m
 func Map2Array(m map[string]string) [][]string {
 	arr := make([][]string, len(m))
 	i := 0
