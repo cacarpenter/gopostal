@@ -127,8 +127,15 @@ func (ui *ConsoleUI) collapseAll(g *gocui.Gui, v *gocui.View) error {
 
 func (ui *ConsoleUI) callRequest(g *gocui.Gui, v *gocui.View) error {
 	ui.Logger.Println("callRequest")
-	ui.execFunc(v)
-
+	g.Update(func(g2 *gocui.Gui) error {
+		responseView, err := g2.View(responseViewName)
+		if err != nil {
+			ui.Logger.Println("ERROR: No response view found")
+			return err
+		}
+		ui.execFunc(responseView)
+		return nil
+	})
 	return nil
 }
 
@@ -149,8 +156,7 @@ func (ui *ConsoleUI) pageUp(g *gocui.Gui, v *gocui.View) error {
 		cury -= 5
 	}
 	ui.ScrollUp()
-	tv.SetCursor(curx, cury)
-	return nil
+	return tv.SetCursor(curx, cury)
 }
 func (ui *ConsoleUI) pageDown(g *gocui.Gui, v *gocui.View) error {
 	tv, err := g.View(treeViewName)
@@ -161,6 +167,5 @@ func (ui *ConsoleUI) pageDown(g *gocui.Gui, v *gocui.View) error {
 	curx, cury := tv.Cursor()
 	ui.Logger.Println("pageDown", curx, cury)
 	ui.ScrollDown()
-	tv.SetCursor(curx, cury+5)
-	return nil
+	return tv.SetCursor(curx, cury+5)
 }

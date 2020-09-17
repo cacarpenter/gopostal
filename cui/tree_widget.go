@@ -13,6 +13,7 @@ const (
 	ArrowDownSolid = '\u25BC'
 	ArrowDownOpen  = '\u1401'
 	ArrowRightOpen = '\u1405'
+	selectColor = colorPurple
 )
 
 type TreeWidget struct {
@@ -40,7 +41,7 @@ func (n *treeNode) print(w io.Writer, pad string) {
 	if n.request != nil {
 		fmt.Fprint(w, "[", methodColor(n.request.Method), n.request.Method, colorReset, "] ")
 		if n.selected {
-			fmt.Fprintf(w, "%s%s%s\n", colorGreen, n.label, colorReset)
+			fmt.Fprintf(w, "%s%s%s\n", selectColor, n.label, colorReset)
 		} else {
 			fmt.Fprintln(w, n.label)
 		}
@@ -185,7 +186,7 @@ func printNode(w io.Writer, node *treeNode, pad string) {
 		}
 		label := fmt.Sprintf("%c %s", chev, node.label)
 		if node.selected {
-			fmt.Fprintf(w, "%s%s%s\n", colorGreen, label, colorReset)
+			fmt.Fprintf(w, "%s%s%s\n", selectColor, label, colorReset)
 		} else {
 			fmt.Fprintln(w, label)
 		}

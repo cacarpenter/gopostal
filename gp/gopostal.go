@@ -1,6 +1,7 @@
 package gp
 
 import (
+	"fmt"
 	"github.com/cacarpenter/gopostal/cui"
 	"github.com/cacarpenter/gopostal/gpmodel"
 	"github.com/cacarpenter/gopostal/postman"
@@ -48,13 +49,19 @@ func New() *GoPostal {
 func (app *GoPostal) ExecCurrentSelection(w io.Writer) {
 	if app.ui.IsRequestSelected() {
 		req := app.ui.SelectedRequest()
+		w.Write([]byte(fmt.Sprintf("Calling %s\n", req.UrlPattern)))
 		response, err := app.CallRequest(req, app.logger.Writer())
+		w.Write([]byte(fmt.Sprintf("Response is %s\n", response)))
 
 		if err != nil {
-			app.logger.Fatal(err)
+			app.logger.Println(err)
+			w.Write([]byte(fmt.Sprintln(err)))
 		} else {
+			w.Write([]byte(fmt.Sprintf("%q\n", *response)))
 			app.RunJavaScript(req.PostScript.Text, *response)
 		}
+	} else {
+		//		app.ui
 	}
 }
 
