@@ -51,7 +51,7 @@ func (app *GoPostal) ExecCurrentSelection(w io.Writer) {
 		req := app.ui.SelectedRequest()
 		w.Write([]byte(fmt.Sprintf("Calling %s\n", req.UrlPattern)))
 		response, err := app.CallRequest(req, app.logger.Writer())
-		w.Write([]byte(fmt.Sprintf("Response is %s\n", response)))
+		w.Write([]byte(fmt.Sprintf("Response is %s\n", *response)))
 
 		if err != nil {
 			app.logger.Println(err)
