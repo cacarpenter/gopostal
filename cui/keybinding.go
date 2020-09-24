@@ -38,13 +38,26 @@ func (ui *ConsoleUI) keybindings(g *gocui.Gui) error {
 		log.Panicln(err)
 	}
 	// DELETE
-	if err := g.SetKeybinding("", gocui.KeyDelete, gocui.ModNone, ui.deleteSelection); err != nil {
+	if err := g.SetKeybinding("", gocui.KeyDelete, gocui.ModNone, ui.DeleteSelection); err != nil {
 		log.Panicln(err)
 	}
-	if err := g.SetKeybinding("", gocui.KeyPgup, gocui.ModNone, ui.pageUp); err != nil {
+	// PAGING
+	if err := g.SetKeybinding("", gocui.KeyPgup, gocui.ModNone, ui.ScrollUp); err != nil {
 		log.Panicln(err)
 	}
-	if err := g.SetKeybinding("", gocui.KeyPgdn, gocui.ModNone, ui.pageDown); err != nil {
+	if err := g.SetKeybinding("", gocui.KeyPgdn, gocui.ModNone, ui.ScrollDown); err != nil {
+		log.Panicln(err)
+	}
+
+	if err := g.SetKeybinding("", gocui.KeyArrowLeft, gocui.ModNone, ui.ArrowLeft); err != nil {
+		log.Panicln(err)
+	}
+	if err := g.SetKeybinding("", gocui.KeyArrowRight, gocui.ModNone, ui.ArrowRight); err != nil {
+		log.Panicln(err)
+	}
+
+	// VARIABLES MODAL
+	if err := g.SetKeybinding("", 'v', gocui.ModNone, ui.ToggleVariablesModal); err != nil {
 		log.Panicln(err)
 	}
 	/*
@@ -137,35 +150,4 @@ func (ui *ConsoleUI) callRequest(g *gocui.Gui, v *gocui.View) error {
 		return nil
 	})
 	return nil
-}
-
-func (ui *ConsoleUI) deleteSelection(g *gocui.Gui, v *gocui.View) error {
-	ui.DeleteSelection()
-	return nil
-}
-
-func (ui *ConsoleUI) pageUp(g *gocui.Gui, v *gocui.View) error {
-	tv, err := g.View(treeViewName)
-	if err != nil {
-		return err
-	}
-
-	curx, cury := tv.Cursor()
-	ui.Logger.Println("pageUp", curx, cury)
-	if cury >= 5 {
-		cury -= 5
-	}
-	ui.ScrollUp()
-	return tv.SetCursor(curx, cury)
-}
-func (ui *ConsoleUI) pageDown(g *gocui.Gui, v *gocui.View) error {
-	tv, err := g.View(treeViewName)
-	if err != nil {
-		return err
-	}
-
-	curx, cury := tv.Cursor()
-	ui.Logger.Println("pageDown", curx, cury)
-	ui.ScrollDown()
-	return tv.SetCursor(curx, cury+5)
 }

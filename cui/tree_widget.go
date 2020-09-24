@@ -207,7 +207,6 @@ func (tw *TreeWidget) MoveUp() {
 	var nextItem *treeNode
 	prevSib := tw.selectedNode.prevSibling()
 	if prevSib != nil {
-		tw.Logger.Printf("Prev sib is %q, check for LED", prevSib.label)
 		nextItem = prevSib.lastExpandedDescendant()
 	} else if tw.selectedNode.parent != nil {
 		if tw.selectedNode.parent.expanded {
@@ -225,7 +224,7 @@ func (tw *TreeWidget) MoveUp() {
 		nextItem.selected = true
 		tw.selectedNode = nextItem
 		tw.selectedRow--
-		tw.Logger.Printf("MoveUp: selected for now %d\n", tw.selectedRow)
+		// tw.Logger.Printf("MoveUp: selected for now %d\n", tw.selectedRow)
 	}
 }
 

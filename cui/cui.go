@@ -15,6 +15,7 @@ const (
 	responseViewName  = "response"
 	errorViewName     = "error"
 	variablesViewName = "variables"
+	modalViewName     = "modal"
 
 	// font coloring
 	colorReset  = "\033[0m"
@@ -25,6 +26,8 @@ const (
 	colorPurple = "\033[35m"
 	colorCyan   = "\033[36m"
 	colorWhite  = "\033[37m"
+
+	defaultScroll = 5
 )
 
 // ConsoleUI contains the various widgets to run the console based user interface
@@ -34,8 +37,15 @@ type ConsoleUI struct {
 	requestWidget   *RequestWidget
 	variablesWidget *VariablesWidget
 	responseWidget  *ResponseWidget
+
+	modalVisible bool
+
 	*log.Logger
+
 	execFunc func(w io.Writer)
+
+	// left right split that is movable
+	verticalSplitX int
 }
 
 // NewConsoleUI creates a new ConsoleUI instance
@@ -47,6 +57,7 @@ func NewConsoleUI(logger *log.Logger) *ConsoleUI {
 	ui.variablesWidget = new(VariablesWidget)
 	ui.Logger = logger
 	ui.treeWidget.Logger = logger
+	ui.verticalSplitX = 30
 	return &ui
 }
 
@@ -58,7 +69,7 @@ func (ui *ConsoleUI) Run() {
 	}
 	defer g.Close()
 
-	g.SetManagerFunc(ui.goldenLayout)
+	g.SetManagerFunc(ui.layout)
 
 	if err := ui.keybindings(g); err != nil {
 		log.Panicln(err)
@@ -69,14 +80,10 @@ func (ui *ConsoleUI) Run() {
 	}
 }
 
-/*
-A layout based on the golden ratio sort of
-*/
-func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
+func (ui *ConsoleUI) layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 
-	// golden-ish ratio
-	remainder := int(float64(maxX) - float64(maxY)*2.5)
+	remainder := ui.verticalSplitX
 	leftWidthAdd := 6
 
 	// collection view
@@ -99,6 +106,11 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 	responseY0 := maxY - (maxY / 4)
 	responseX1 := maxX - 1
 	responseY1 := maxY - 1
+
+	modalX0 := 10
+	modalY0 := 10
+	modalX1 := maxX - 10
+	modalY1 := maxY - 10
 
 	if treeView, err := g.SetView(treeViewName, treeX0, treeY0, treeX1, treeY1); err != nil {
 		treeView.Title = "Tree"
@@ -130,6 +142,19 @@ func (ui *ConsoleUI) goldenLayout(g *gocui.Gui) error {
 			return err
 		}
 		responseView.Title = "Response"
+	}
+	if ui.modalVisible {
+		if modalView, err := g.SetView(modalViewName, modalX0, modalY0, modalX1, modalY1); err != nil {
+			if err != gocui.ErrUnknownView {
+				return err
+			}
+			modalView.Title = "MOD"
+			modalView.SelBgColor = gocui.ColorMagenta
+			ui.variablesWidget.Layout(modalView)
+			g.SetCurrentView(modalViewName)
+		}
+	} else {
+		g.DeleteView(modalViewName)
 	}
 	return nil
 }
@@ -170,15 +195,50 @@ func (ui *ConsoleUI) SetOnExec(f func(w io.Writer)) {
 }
 
 // DeleteSelection
-func (ui *ConsoleUI) DeleteSelection() {
+func (ui *ConsoleUI) DeleteSelection(g *gocui.Gui, v *gocui.View) error {
+	ui.Logger.Println("Delete not yet implemented")
+	return nil
 }
 
-func (ui *ConsoleUI) ScrollUp() {
-	ui.Logger.Println("ScrollUp")
+// ArrowLeft
+func (ui *ConsoleUI) ArrowLeft(g *gocui.Gui, v *gocui.View) error {
+	ui.verticalSplitX--
+	return nil
 }
 
-func (ui *ConsoleUI) ScrollDown() {
-	ui.Logger.Println("ScrollDown")
+// ArrowRight
+func (ui *ConsoleUI) ArrowRight(g *gocui.Gui, v *gocui.View) error {
+	ui.verticalSplitX++
+	return nil
+}
+
+func (ui *ConsoleUI) ToggleVariablesModal(g *gocui.Gui, v *gocui.View) error {
+	ui.modalVisible = !ui.modalVisible
+	ui.Logger.Printf("TVM %t\n", ui.modalVisible)
+	return ui.layout(g)
+}
+
+func (ui *ConsoleUI) ScrollUp(g *gocui.Gui, v *gocui.View) error {
+	tv, err := g.View(treeViewName)
+	if err != nil {
+		return err
+	}
+
+	origX, origY := tv.Origin()
+	if origY >= defaultScroll {
+		origY -= defaultScroll
+	}
+	return tv.SetOrigin(origX, origY)
+}
+
+func (ui *ConsoleUI) ScrollDown(g *gocui.Gui, v *gocui.View) error {
+	tv, err := g.View(treeViewName)
+	if err != nil {
+		return err
+	}
+
+	origX, origY := tv.Origin()
+	return tv.SetOrigin(origX, origY+defaultScroll)
 }
 
 func (ui *ConsoleUI) IsRequestSelected() bool {
