@@ -22,7 +22,7 @@ func main() {
 	app := gp.New()
 
 	var environments []*postman.Environment
-	var groups []*gpmodel.Group
+	var groups []*gpmodel.RequestGroup
 	for _, filename := range flag.Args() {
 		if postman.IsEnvironmentFile(filename) {
 			pmEnv, err := postman.ParseEnv(filename)
@@ -41,7 +41,7 @@ func main() {
 		}
 	}
 
-	app.SetGroups(groups)
+	app.SetRequestGroups(groups)
 	app.SetPostmanEnvironments(environments)
 	app.Run()
 	app.Stop()

@@ -174,9 +174,9 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
 
-// SetGroups sets the groups to display in the UI
-func (ui *ConsoleUI) SetGroups(grps []*gpmodel.Group) {
-	ui.treeWidget.SetGroups(grps)
+// SetRequestGroups sets the groups to display in the UI
+func (ui *ConsoleUI) SetRequestGroups(grps []*gpmodel.RequestGroup) {
+	ui.treeWidget.SetRequestGroups(grps)
 }
 
 // UpdateVariables changes the variables currently displayed

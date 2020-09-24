@@ -294,8 +294,8 @@ func (tw *TreeWidget) SelectLast() {
 	*/
 }
 
-func (tw *TreeWidget) SetGroups(gps []*gpmodel.Group) {
-	tw.Logger.Println("TreeWidget.SetGroups: load", len(gps))
+func (tw *TreeWidget) SetRequestGroups(gps []*gpmodel.RequestGroup) {
+	tw.Logger.Println("TreeWidget.SetRequestGroups: load", len(gps))
 	if len(gps) < 1 {
 		return
 	}
@@ -314,7 +314,7 @@ func (tw *TreeWidget) SetGroups(gps []*gpmodel.Group) {
 	tw.selectedRow = 0
 }
 
-func group2node(group *gpmodel.Group) *treeNode {
+func group2node(group *gpmodel.RequestGroup) *treeNode {
 	n := treeNode{}
 	n.label = group.Name
 	n.children = make([]*treeNode, len(group.Children)+len(group.Requests))

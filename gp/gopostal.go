@@ -18,7 +18,7 @@ type GoPostal struct {
 	logger       *log.Logger
 	logFile      *os.File
 	environments []*postman.Environment
-	groups       []*gpmodel.Group
+	groups       []*gpmodel.RequestGroup
 }
 
 func (app *GoPostal) initLogging() {
@@ -41,7 +41,7 @@ func New() *GoPostal {
 	app.ui.SetOnExec(app.ExecCurrentSelection)
 	app.session = NewSession()
 	app.environments = make([]*postman.Environment, 1)
-	app.groups = make([]*gpmodel.Group, 1)
+	app.groups = make([]*gpmodel.RequestGroup, 1)
 
 	return &app
 }
@@ -71,13 +71,13 @@ func (app *GoPostal) SetPostmanEnvironments(environments []*postman.Environment)
 	app.ui.UpdateVariables(app.session.variables)
 }
 
-func (app *GoPostal) SetGroups(grps []*gpmodel.Group) {
-	app.logger.Printf("Using %d groups\n", len(grps))
+func (app *GoPostal) SetRequestGroups(grps []*gpmodel.RequestGroup) {
+	app.logger.Printf("Using %d request groups\n", len(grps))
 	for _, g := range grps {
-		app.logger.Printf("Collection %s\n", g.Name)
+		app.logger.Printf("Request Group %s\n", g.Name)
 	}
 	app.groups = grps
-	app.ui.SetGroups(grps)
+	app.ui.SetRequestGroups(grps)
 }
 
 func (app *GoPostal) Run() {

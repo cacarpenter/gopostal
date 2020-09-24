@@ -17,12 +17,12 @@ func TestIsCollectionFile(t *testing.T) {
 }
 
 func TestCollection_wireCollection(t *testing.T) {
-	grp := gpmodel.Group{}
+	grp := gpmodel.RequestGroup{}
 	pc := Collection{}
 	pc.Name = "Test"
 	wireCollection(&grp, &pc)
 	if grp.Name != "Test" {
-		t.Errorf("Group name should be Test")
+		t.Errorf("RequestGroup name should be Test")
 	}
 	if len(grp.Requests) != 0 {
 		t.Error("There should be no requests")
@@ -36,7 +36,7 @@ func TestCollection_wireCollection_SingleTree(t *testing.T) {
 	pc := Collection{}
 	pc.Items = append(pc.Items, new(Collection))
 	pc.Items[0].Items = append(pc.Items[0].Items, new(Collection))
-	var grp gpmodel.Group
+	var grp gpmodel.RequestGroup
 	wireCollection(&grp, &pc)
 	if len(grp.Children) != 1 {
 		t.Fatal("Expecting one child")
@@ -81,7 +81,7 @@ func TestCollection_wireCollection_TwoReqs(t *testing.T) {
 
 	gp := wireCollection(nil, &pc)
 	if gp.Name != "coll name" {
-		t.Fatal("Group name should be 'coll name' not", gp.Name)
+		t.Fatal("RequestGroup name should be 'coll name' not", gp.Name)
 	}
 	if len(gp.Children) != 0 {
 		t.Fatal("Len children should be zero not", len(gp.Children))

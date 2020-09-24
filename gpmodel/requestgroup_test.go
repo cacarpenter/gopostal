@@ -3,8 +3,8 @@ package gpmodel
 import "testing"
 
 func TestGroup_AddChild(t *testing.T) {
-	parent := new(Group)
-	child := new(Group)
+	parent := new(RequestGroup)
+	child := new(RequestGroup)
 	parent.AddChild(child)
 
 	if len(parent.Children) != 1 {
@@ -19,9 +19,9 @@ func TestGroup_AddChild(t *testing.T) {
 }
 
 func TestGroup_NextSibling(t *testing.T) {
-	parent := new(Group)
-	child1 := new(Group)
-	child2 := new(Group)
+	parent := new(RequestGroup)
+	child1 := new(RequestGroup)
+	child2 := new(RequestGroup)
 	parent.AddChild(child1)
 	parent.AddChild(child2)
 
@@ -34,9 +34,9 @@ func TestGroup_NextSibling(t *testing.T) {
 }
 
 func TestGroup_PreviousSibling(t *testing.T) {
-	parent := new(Group)
-	child1 := new(Group)
-	child2 := new(Group)
+	parent := new(RequestGroup)
+	child1 := new(RequestGroup)
+	child2 := new(RequestGroup)
 	parent.AddChild(child1)
 	parent.AddChild(child2)
 
@@ -50,30 +50,30 @@ func TestGroup_PreviousSibling(t *testing.T) {
 
 /*
 func TestGroup_LastExpandedDescendent(t *testing.T) {
-	p := new(Group)
+	p := new(RequestGroup)
 	p.Name = "parent"
-	c1 := new(Group)
+	c1 := new(RequestGroup)
 	c1.Name = "child1"
-	c2 := new(Group)
+	c2 := new(RequestGroup)
 	c2.Name = "child2"
-	c3 := new(Group)
+	c3 := new(RequestGroup)
 	c3.Name = "child3"
 	p.AddChild(c1)
 	p.AddChild(c2)
 	p.AddChild(c3)
-	c1g1 := new(Group)
+	c1g1 := new(RequestGroup)
 	c1g1.Name = "child1 grand1"
 	c1.AddChild(c1g1)
-	c1g2 := new(Group)
+	c1g2 := new(RequestGroup)
 	c1g2.Name = "child1 grand2"
 	c1.AddChild(c1g2)
-	c2g1 := new(Group)
+	c2g1 := new(RequestGroup)
 	c2.AddChild(c2g1)
-	gg1 := new(Group)
+	gg1 := new(RequestGroup)
 	c1g1.AddChild(gg1)
-	gg2 := new(Group)
+	gg2 := new(RequestGroup)
 	c1g2.AddChild(gg2)
-	gg3 := new(Group)
+	gg3 := new(RequestGroup)
 	c1g1.AddChild(gg3)
 
 	if p.LastExpandedDescendent() != p {
