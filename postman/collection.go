@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const POSTMAN_COLLECTION_SUFFIX = "postman_collection.json"
+const PostmanCollectionSuffix = "postman_collection.json"
 
 type CollectionInfo struct {
 	PostmanId string `json:"_postman_id"`
@@ -36,8 +36,14 @@ func ParseCollection(filename string) (*gpmodel.RequestGroup, error) {
 		return nil, err
 	}
 
-	return wireCollection(nil, &coll), nil
+	resultGroup, err := wireCollection(nil, &coll), nil
+	if err != nil {
+		return nil, err
+	}
+	resultGroup.SourceFilename = filename
+	return resultGroup, nil
 }
+
 
 func wireCollection(parent *gpmodel.RequestGroup, pc *Collection) *gpmodel.RequestGroup {
 	if pc.Request != nil {
@@ -86,5 +92,5 @@ func (c *Collection) Label() string {
 }
 
 func IsCollectionFile(filename string) bool {
-	return strings.HasSuffix(filename, POSTMAN_COLLECTION_SUFFIX)
+	return strings.HasSuffix(filename, PostmanCollectionSuffix)
 }

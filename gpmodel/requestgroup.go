@@ -1,10 +1,12 @@
 package gpmodel
 
+// RequestGroup represents a collection of RequestSpec s and child RequestGroup s
 type RequestGroup struct {
-	Name     string
-	Parent   *RequestGroup
-	Children []*RequestGroup
-	Requests []*RequestSpec
+	Name           string
+	Parent         *RequestGroup
+	Children       []*RequestGroup
+	Requests       []*RequestSpec
+	SourceFilename string
 }
 
 func (g *RequestGroup) PreviousSibling() *RequestGroup {

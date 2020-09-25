@@ -1,7 +1,7 @@
 package gp
 
 import (
-	"github.com/cacarpenter/gopostal/postman"
+	"github.com/cacarpenter/gopostal/gpmodel"
 )
 
 type Session struct {
@@ -20,12 +20,9 @@ func NewSession() *Session {
 	return &Session{make(map[string]string)}
 }
 
-func (s *Session) Update(env *postman.Environment, overwrite bool) {
-	for _, v := range env.Values {
-		if _, exists := s.variables[v.Key]; !exists || overwrite {
-			s.variables[v.Key] = v.Value
-		}
-	}
+func (s *Session) Update(vg *gpmodel.VarGroup, overwrite bool) {
+	// for now anyway
+	s.variables = vg.Variables
 }
 
 func (s *Session) Map() map[string]string {
