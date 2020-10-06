@@ -23,6 +23,10 @@ func (app *GoPostal) CallRequest(reqSpec *gpmodel.RequestSpec, writer io.Writer)
 		return nil, err
 	}
 	for _, hdr := range reqSpec.Headers {
+		// skip empty headers
+		if len(hdr.Value) < 1 || len(hdr.Key) < 1 {
+			continue
+		}
 		headerVal := util.ReplaceVariables(hdr.Value, app.session.variables)
 		headerKey := hdr.Key
 		// TODO this is something postman specific? Need this to be the Authorization Header with a Bearer token
