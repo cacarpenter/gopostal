@@ -37,10 +37,11 @@ func ParseEnvironment(filename string) (*gpmodel.VarGroup, error) {
 	}
 
 	vg := gpmodel.VarGroup{}
+	vg.Name = pmEnv.Name
 	vg.SourceFilename = filename
 	vars := make(map[string]string, len(pmEnv.Values))
 	for _, pmEnvVar := range pmEnv.Values {
-		vars[pmEnvVar.Key] = pmEnvVar.Key
+		vars[pmEnvVar.Key] = pmEnvVar.Value
 	}
 
 	vg.Variables = vars
