@@ -156,6 +156,10 @@ func (ui *ConsoleUI) layout(g *gocui.Gui) error {
 	} else {
 		g.DeleteView(modalViewName)
 	}
+	// set default view to the tree view
+	if g.CurrentView() == nil {
+		g.SetCurrentView(treeViewName)
+	}
 	return nil
 }
 
@@ -214,8 +218,8 @@ func (ui *ConsoleUI) ArrowRight(g *gocui.Gui, v *gocui.View) error {
 
 func (ui *ConsoleUI) ToggleVariablesModal(g *gocui.Gui, v *gocui.View) error {
 	ui.modalVisible = !ui.modalVisible
-	ui.Logger.Printf("TVM %t\n", ui.modalVisible)
-	return ui.layout(g)
+	g.SetCurrentView(treeViewName)
+	return nil
 }
 
 func (ui *ConsoleUI) ScrollUp(g *gocui.Gui, v *gocui.View) error {

@@ -93,19 +93,12 @@ func (ui *ConsoleUI) updateTreeWidget(g *gocui.Gui, f func(*TreeWidget)) error {
 
 func (ui *ConsoleUI) cursorDown(g *gocui.Gui, v *gocui.View) error {
 	if v != nil {
-		fmt.Fprintln(v, "v is not null!")
-	}
-	if g != nil {
-		cv := g.CurrentView()
-		if cv != nil {
-			fmt.Fprintln(cv, "this is the current non nil view")
+		ui.Logger.Println("cursorDown: Got a view", v.Name())
+		if v.Name() == treeViewName {
+			return ui.updateTreeWidget(g, func(gw *TreeWidget) {
+				gw.MoveDown()
+			})
 		}
-	}
-	err := ui.updateTreeWidget(g, func(gw *TreeWidget) {
-		gw.MoveDown()
-	})
-	if err != nil {
-		return err
 	}
 	return nil
 }

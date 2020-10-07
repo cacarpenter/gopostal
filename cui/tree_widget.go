@@ -229,26 +229,22 @@ func (tw *TreeWidget) MoveUp() {
 }
 
 func (tw *TreeWidget) MoveDown() {
-	// l := tw.Logger
 	var nextNode *treeNode
 	if tw.selectedNode == nil {
 		tw.Logger.Println("Cannot move: no current selection")
 		return
 	}
-	// l.Println("MoveDown: Current Selection is ", tw.selectedNode.label)
 	if tw.selectedNode.expanded && len(tw.selectedNode.children) > 0 {
-		// l.Println("expanding with children, so selecting the first child")
 		nextNode = tw.selectedNode.children[0]
 	} else {
 		nextNode = tw.selectedNode.nextRelative()
 	}
 	if nextNode != nil {
-		// l.Println("Setting next item to ", nextNode.label)
+		// tw.Logger.Println("Setting next item to ", nextNode.label)
 		tw.selectedNode.selected = false
 		nextNode.selected = true
 		tw.selectedNode = nextNode
 		tw.selectedRow++
-		// l.Printf("MoveDown: selected for now %d\n", tw.selectedRow)
 	}
 }
 
