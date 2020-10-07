@@ -1,7 +1,6 @@
 package cui
 
 import (
-	"fmt"
 	"github.com/jroimartin/gocui"
 	"log"
 )
@@ -92,25 +91,30 @@ func (ui *ConsoleUI) updateTreeWidget(g *gocui.Gui, f func(*TreeWidget)) error {
 }
 
 func (ui *ConsoleUI) cursorDown(g *gocui.Gui, v *gocui.View) error {
-	if v != nil {
-		ui.Logger.Println("cursorDown: Got a view", v.Name())
-		if v.Name() == treeViewName {
-			return ui.updateTreeWidget(g, func(gw *TreeWidget) {
-				gw.MoveDown()
-			})
-		}
+	// shouldn't happen, there should always be a current view
+	if v == nil {
+		return nil
+	}
+	ui.Logger.Println("cursorDown: Got a view", v.Name())
+	if v.Name() == treeViewName {
+		return ui.updateTreeWidget(g, func(gw *TreeWidget) {
+			gw.MoveDown()
+		})
 	}
 	return nil
 }
 
 func (ui *ConsoleUI) cursorUp(g *gocui.Gui, v *gocui.View) error {
-	if v != nil {
-		cx, cy := v.Cursor()
-		fmt.Fprintf(v, "%d %d\n", cx, cy)
+	// shouldn't happen, there should always be a current view
+	if v == nil {
+		return nil
 	}
-	return ui.updateTreeWidget(g, func(gw *TreeWidget) {
-		gw.MoveUp()
-	})
+	if v.Name() == treeViewName {
+		return ui.updateTreeWidget(g, func(gw *TreeWidget) {
+			gw.MoveUp()
+		})
+	}
+	return nil
 }
 
 func (ui *ConsoleUI) toggleExpand(g *gocui.Gui, v *gocui.View) error {
