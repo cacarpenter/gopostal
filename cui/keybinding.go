@@ -118,21 +118,39 @@ func (ui *ConsoleUI) cursorUp(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (ui *ConsoleUI) toggleExpand(g *gocui.Gui, v *gocui.View) error {
-	return ui.updateTreeWidget(g, func(gw *TreeWidget) {
-		gw.ToggleExpanded()
-	})
+	if v == nil {
+		return nil
+	}
+	if v.Name() == treeViewName {
+		return ui.updateTreeWidget(g, func(gw *TreeWidget) {
+			gw.ToggleExpanded()
+		})
+	}
+	return nil
 }
 
 func (ui *ConsoleUI) expandAll(g *gocui.Gui, v *gocui.View) error {
-	return ui.updateTreeWidget(g, func(gw *TreeWidget) {
-		gw.ExpandAll()
-	})
+	if v == nil {
+		return nil
+	}
+	if v.Name() == treeViewName {
+		return ui.updateTreeWidget(g, func(gw *TreeWidget) {
+			gw.ExpandAll()
+		})
+	}
+	return nil
 }
 
 func (ui *ConsoleUI) collapseAll(g *gocui.Gui, v *gocui.View) error {
-	return ui.updateTreeWidget(g, func(gw *TreeWidget) {
-		gw.CollapseAll()
-	})
+	if v == nil {
+		return nil
+	}
+	if v.Name() == treeViewName {
+		return ui.updateTreeWidget(g, func(gw *TreeWidget) {
+			gw.CollapseAll()
+		})
+	}
+	return nil
 }
 
 func (ui *ConsoleUI) callRequest(g *gocui.Gui, v *gocui.View) error {
