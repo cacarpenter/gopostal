@@ -206,13 +206,17 @@ func (ui *ConsoleUI) DeleteSelection(g *gocui.Gui, v *gocui.View) error {
 
 // ArrowLeft
 func (ui *ConsoleUI) ArrowLeft(g *gocui.Gui, v *gocui.View) error {
-	ui.verticalSplitX--
+	if v == nil || v.Name() != modalViewName {
+		ui.verticalSplitX--
+	}
 	return nil
 }
 
 // ArrowRight
 func (ui *ConsoleUI) ArrowRight(g *gocui.Gui, v *gocui.View) error {
-	ui.verticalSplitX++
+	if v == nil || v.Name() != modalViewName {
+		ui.verticalSplitX++
+	}
 	return nil
 }
 
