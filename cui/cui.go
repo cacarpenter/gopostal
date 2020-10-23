@@ -185,11 +185,13 @@ func (ui *ConsoleUI) SetRequestGroups(grps []*gpmodel.RequestGroup) {
 
 // UpdateVariables changes the variables currently displayed
 func (ui *ConsoleUI) UpdateVariables(vars map[string]string) {
+	ui.requestWidget.vars = vars
 	ui.variablesWidget.SetVariables(util.Map2Array(vars))
 }
 
 // UpdateVariable update a variable in the display
 func (ui *ConsoleUI) UpdateVariable(k, v string) {
+	ui.requestWidget.vars[k] = v
 	ui.variablesWidget.SetVariable(k, v)
 }
 
