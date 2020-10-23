@@ -31,7 +31,11 @@ func NewRequestSpec(pmReq *Request) *gpmodel.RequestSpec {
 		rs.Headers[i] = gpmodel.Header{Key: pmHeader.Key, Value: pmHeader.Value}
 	}
 	if pmReq.Body != nil {
-		rs.Body = pmReq.Body.Raw
+		pmBod := pmReq.Body
+		rs.Body = pmBod.Raw
+		if pmBod.Options != nil && pmBod.Options.Raw.Language == "json"{
+			rs.Headers = append(rs.Headers, gpmodel.Header{Key: "Content-Type", Value: "application/json"})
+		}
 	}
 	return rs
 }
