@@ -142,6 +142,7 @@ func (ui *ConsoleUI) layout(g *gocui.Gui) error {
 			return err
 		}
 		responseView.Title = "Response"
+		responseView.Autoscroll = true
 	}
 	if ui.modalVisible {
 		if modalView, err := g.SetView(modalViewName, modalX0, modalY0, modalX1, modalY1); err != nil {
