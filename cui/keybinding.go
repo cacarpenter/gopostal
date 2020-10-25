@@ -162,6 +162,12 @@ func (ui *ConsoleUI) callRequest(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 		ui.execFunc(responseView)
+		varsView, err := g2.View(variablesViewName)
+		if err != nil {
+			ui.Logger.Printf("ERROR: No view %s found: %q\n", variablesViewName, err)
+			return err
+		}
+		ui.variablesWidget.Layout(varsView)
 		return nil
 	})
 	return nil
