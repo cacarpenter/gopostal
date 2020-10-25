@@ -32,11 +32,11 @@ func TestGroupsWidget_MoveDown_SingleCollection(t *testing.T) {
 
 func TestGroupsWidget_MoveDown_ThreeCollections(t *testing.T) {
 	gw := setUp()
-	grps := make([]*gpmodel.Group, 3)
+	grps := make([]*gpmodel.RequestGroup, 3)
 	grps[0] = gpmodel.NewGroup("group 0")
 	grps[1] = gpmodel.NewGroup("group 1")
 	grps[2] = gpmodel.NewGroup("group 2")
-	gw.SetGroups(grps)
+	gw.SetRequestGroups(grps)
 	gw.MoveDown()
 	if gw.selectedNode != gw.tree.children[1] {
 		t.Fatal("Selected collection should be 1 not ", gw.selectedNode.label)
@@ -53,11 +53,11 @@ func TestGroupsWidget_MoveDown_ThreeCollections(t *testing.T) {
 
 func TestGroupsWidget_MoveDown_SingleManyDecendents(t *testing.T) {
 	gw := setUp()
-	groups := make([]*gpmodel.Group, 1)
+	groups := make([]*gpmodel.RequestGroup, 1)
 	groups[0] = gpmodel.NewGroup("Only Child")
-	groups[0].AddChild(new(gpmodel.Group))
-	groups[0].Children[0].AddChild(new(gpmodel.Group))
-	gw.SetGroups(groups)
+	groups[0].AddChild(new(gpmodel.RequestGroup))
+	groups[0].Children[0].AddChild(new(gpmodel.RequestGroup))
+	gw.SetRequestGroups(groups)
 
 	if gw.selectedNode != gw.tree.children[0] {
 		t.Fatal("root not selected")
@@ -86,14 +86,14 @@ func TestGroupsWidget_MoveDown_SingleManyDecendents(t *testing.T) {
 
 func TestGroupsWidget_MoveDown_ThreeCollsOneDescendentEach(t *testing.T) {
 	gw := setUp()
-	grps := make([]*gpmodel.Group, 3)
+	grps := make([]*gpmodel.RequestGroup, 3)
 	grps[0] = gpmodel.NewGroup("group 0")
 	grps[0].AddChild(gpmodel.NewGroup("group 0 child 0"))
 	grps[1] = gpmodel.NewGroup("group 1")
 	grps[1].AddChild(gpmodel.NewGroup("gp 1 ch 0"))
 	grps[2] = gpmodel.NewGroup("group 2")
-	grps[2].AddChild(new(gpmodel.Group))
-	gw.SetGroups(grps)
+	grps[2].AddChild(new(gpmodel.RequestGroup))
+	gw.SetRequestGroups(grps)
 
 	if gw.selectedNode != gw.tree.children[0] {
 		t.Fatal("Not g 0", gw.selectedNode.label)
@@ -126,17 +126,17 @@ func TestGroupsWidget_MoveDown_ThreeCollsOneDescendentEach(t *testing.T) {
 /*
 func TestGroupsWidget_MoveUp_ThreeCollsOneDescendentEach(t *testing.T) {
 	gw := setUp()
-	grps := make([]*gpmodel.Group, 3)
-	grps[0] = new(gpmodel.Group)
+	grps := make([]*gpmodel.RequestGroup, 3)
+	grps[0] = new(gpmodel.RequestGroup)
 	grps[0].Name = "p0"
-	grps[0].AddChild(new(gpmodel.Group))
-	grps[1] = new(gpmodel.Group)
+	grps[0].AddChild(new(gpmodel.RequestGroup))
+	grps[1] = new(gpmodel.RequestGroup)
 	grps[1].Name = "p1"
-	grps[1].AddChild(new(gpmodel.Group))
-	grps[2] = new(gpmodel.Group)
+	grps[1].AddChild(new(gpmodel.RequestGroup))
+	grps[2] = new(gpmodel.RequestGroup)
 	grps[2].Name = "p2"
-	grps[2].AddChild(new(gpmodel.Group))
-	gw.SetGroups(grps)
+	grps[2].AddChild(new(gpmodel.RequestGroup))
+	gw.SetRequestGroups(grps)
 	gw.ExpandAll()
 	gw.SelectLast()
 	if gw.selectedNode != gw.tree.children[2].children[0] {

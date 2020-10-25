@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"sort"
 )
 
 // ReplaceVariables returns a string with all variables marked with double curly brackets based on the provided map of values
@@ -75,4 +76,29 @@ func Map2Array(m map[string]string) [][]string {
 		i++
 	}
 	return arr
+}
+
+func SortArray(unsorted [][]string) [][] string {
+	sorted := make([][]string, len(unsorted))
+	sortedKeys := make([]string, len(unsorted))
+	for i, kv := range unsorted {
+		sortedKeys[i] = kv[0]
+	}
+	sort.Strings(sortedKeys)
+	for i, sk := range sortedKeys {
+		sorted[i] = make([]string, 2)
+		sorted[i][0] = sk
+		unsortedKeyIndex := indexOf(unsorted, sk)
+		sorted[i][1] = unsorted[unsortedKeyIndex][1]
+	}
+	return sorted
+}
+
+func indexOf(arr [][]string, val string) int {
+	for i, s := range arr {
+		if s[0] == val {
+			return i
+		}
+	}
+	return -1
 }

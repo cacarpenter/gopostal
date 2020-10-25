@@ -4,21 +4,20 @@ import (
 	"fmt"
 	"github.com/cacarpenter/gopostal/cui"
 	"github.com/cacarpenter/gopostal/gpmodel"
-	"github.com/cacarpenter/gopostal/postman"
 	"io"
 	"log"
 	"os"
 )
 
-const GO_POSTAL_VERSION = "0.1.0"
+const GoPostalVersion = "0.1.0"
 
 type GoPostal struct {
-	ui           *cui.ConsoleUI
-	session      *Session
-	logger       *log.Logger
-	logFile      *os.File
-	environments []*postman.Environment
-	groups       []*gpmodel.Group
+	ui        *cui.ConsoleUI
+	session   *Session
+	logger    *log.Logger
+	logFile   *os.File
+	varGroups []*gpmodel.VarGroup
+	reqGroups []*gpmodel.RequestGroup
 }
 
 func (app *GoPostal) initLogging() {
@@ -30,7 +29,7 @@ func (app *GoPostal) initLogging() {
 	app.logFile = f
 
 	logger := log.New(f, "", log.Ldate|log.Ltime)
-	logger.Println("GoPostal " + GO_POSTAL_VERSION)
+	logger.Println("GoPostal " + GoPostalVersion)
 	app.logger = logger
 }
 
@@ -40,8 +39,8 @@ func New() *GoPostal {
 	app.ui = cui.NewConsoleUI(app.logger)
 	app.ui.SetOnExec(app.ExecCurrentSelection)
 	app.session = NewSession()
-	app.environments = make([]*postman.Environment, 1)
-	app.groups = make([]*gpmodel.Group, 1)
+	app.varGroups = make([]*gpmodel.VarGroup, 1)
+	app.reqGroups = make([]*gpmodel.RequestGroup, 1)
 
 	return &app
 }
@@ -62,22 +61,22 @@ func (app *GoPostal) ExecCurrentSelection(w io.Writer) {
 	}
 }
 
-func (app *GoPostal) SetPostmanEnvironments(environments []*postman.Environment) {
-	for _, pmEnv := range environments {
-		app.logger.Println("Loading Postman Environment", pmEnv.Name)
-		app.session.Update(pmEnv, true)
+func (app *GoPostal) SetVarGroups(varGroups []*gpmodel.VarGroup) {
+	app.varGroups = varGroups
+	for _, vg := range varGroups {
+		app.logger.Println("Loading VarGroup Environment", vg.Name)
+		app.session.Update(vg, true)
 	}
-	app.environments = environments
 	app.ui.UpdateVariables(app.session.variables)
 }
 
-func (app *GoPostal) SetGroups(grps []*gpmodel.Group) {
-	app.logger.Printf("Using %d groups\n", len(grps))
+func (app *GoPostal) SetRequestGroups(grps []*gpmodel.RequestGroup) {
+	app.logger.Printf("Using %d request reqGroups\n", len(grps))
 	for _, g := range grps {
-		app.logger.Printf("Collection %s\n", g.Name)
+		app.logger.Printf("Request Group %s\n", g.Name)
 	}
-	app.groups = grps
-	app.ui.SetGroups(grps)
+	app.reqGroups = grps
+	app.ui.SetRequestGroups(grps)
 }
 
 func (app *GoPostal) Run() {

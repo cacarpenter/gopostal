@@ -36,9 +36,18 @@ type Request struct {
 	Variables []KeyValue `json:"variable"`
 }
 
+type BodyOptionRaw struct {
+	Language string `json:"language"`
+}
+
+type BodyOptions struct {
+	Raw BodyOptionRaw `json:"raw"`
+}
+
 type Body struct {
 	Mode string `json:"mode"`
 	Raw  string `json:"raw"`
+	Options *BodyOptions `json:"options"`
 }
 
 type ProtocolProfileBehavior struct {

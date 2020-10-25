@@ -1,6 +1,7 @@
 package cui
 
 import (
+	"github.com/cacarpenter/gopostal/util"
 	"github.com/jroimartin/gocui"
 	"github.com/olekukonko/tablewriter"
 )
@@ -18,8 +19,8 @@ func (vw *VariablesWidget) Layout(view *gocui.View) {
 	table.Render()
 }
 
-func (vw *VariablesWidget) SetVariables(v [][]string) {
-	vw.vars = v
+func (vw *VariablesWidget) SetVariables(vars [][]string) {
+	vw.vars = util.SortArray(vars)
 }
 
 func (vw *VariablesWidget) SetVariable(k, v string) {

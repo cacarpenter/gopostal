@@ -1,18 +1,20 @@
 package gpmodel
 
-type Group struct {
-	Name     string
-	Parent   *Group
-	Children []*Group
-	Requests []*RequestSpec
+// RequestGroup represents a collection of RequestSpec s and child RequestGroup s
+type RequestGroup struct {
+	Name           string
+	Parent         *RequestGroup
+	Children       []*RequestGroup
+	Requests       []*RequestSpec
+	SourceFilename string
 }
 
-func (g *Group) PreviousSibling() *Group {
+func (g *RequestGroup) PreviousSibling() *RequestGroup {
 	// this is the root
 	if g.Parent == nil {
 		return nil
 	}
-	var prev *Group
+	var prev *RequestGroup
 	for _, ch := range g.Parent.Children {
 		if g == ch {
 			break
@@ -22,7 +24,7 @@ func (g *Group) PreviousSibling() *Group {
 	return prev
 }
 
-func (g *Group) NextSibling() *Group {
+func (g *RequestGroup) NextSibling() *RequestGroup {
 	// root
 	if g.Parent == nil {
 		return nil
@@ -36,7 +38,7 @@ func (g *Group) NextSibling() *Group {
 	return nil
 }
 
-func (g *Group) LinkParent(p *Group) {
+func (g *RequestGroup) LinkParent(p *RequestGroup) {
 	if p != nil {
 		for _, ch := range p.Children {
 			ch.LinkParent(g)
@@ -48,7 +50,7 @@ func (g *Group) LinkParent(p *Group) {
 /*
 // LastExpandedDescendent recursively returns the last child of expanded of a collection.
 // Otherwise the collection itself is returned
-func (g *Group) LastExpandedDescendent() *Group {
+func (g *RequestGroup) LastExpandedDescendent() *RequestGroup {
 	if g.expanded && len(g.Items) > 0 {
 		return g.Items[len(g.Items)-1].LastExpandedDescendent()
 	}
@@ -56,13 +58,13 @@ func (g *Group) LastExpandedDescendent() *Group {
 }*/
 
 // used by tests
-func (g *Group) AddChild(child *Group) {
+func (g *RequestGroup) AddChild(child *RequestGroup) {
 	child.Parent = g
 	g.Children = append(g.Children, child)
 }
 
-func NewGroup(name string) *Group {
-	g := new(Group)
+func NewGroup(name string) *RequestGroup {
+	g := new(RequestGroup)
 	g.Name = name
 	return g
 }

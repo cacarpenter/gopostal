@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const POSTMAN_COLLECTION_SUFFIX = "postman_collection.json"
+const PostmanCollectionSuffix = "postman_collection.json"
 
 type CollectionInfo struct {
 	PostmanId string `json:"_postman_id"`
@@ -25,7 +25,7 @@ type Collection struct {
 	Request *Request        `json:"request"`
 }
 
-func ParseCollection(filename string) (*gpmodel.Group, error) {
+func ParseCollection(filename string) (*gpmodel.RequestGroup, error) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -36,10 +36,16 @@ func ParseCollection(filename string) (*gpmodel.Group, error) {
 		return nil, err
 	}
 
-	return wireCollection(nil, &coll), nil
+	resultGroup, err := wireCollection(nil, &coll), nil
+	if err != nil {
+		return nil, err
+	}
+	resultGroup.SourceFilename = filename
+	return resultGroup, nil
 }
 
-func wireCollection(parent *gpmodel.Group, pc *Collection) *gpmodel.Group {
+
+func wireCollection(parent *gpmodel.RequestGroup, pc *Collection) *gpmodel.RequestGroup {
 	if pc.Request != nil {
 		if parent == nil {
 			log.Panicln("Cannot set request on nil parent")
@@ -59,9 +65,9 @@ func wireCollection(parent *gpmodel.Group, pc *Collection) *gpmodel.Group {
 		parent.Requests = append(parent.Requests, reqSpec)
 		return parent
 	}
-	var p *gpmodel.Group
+	var p *gpmodel.RequestGroup
 	if parent == nil {
-		p = new(gpmodel.Group)
+		p = new(gpmodel.RequestGroup)
 	} else {
 		p = parent
 	}
@@ -70,7 +76,7 @@ func wireCollection(parent *gpmodel.Group, pc *Collection) *gpmodel.Group {
 		if childColl.Request != nil {
 			wireCollection(p, childColl)
 		} else {
-			grp := new(gpmodel.Group)
+			grp := new(gpmodel.RequestGroup)
 			wireCollection(grp, childColl)
 			p.AddChild(grp)
 		}
@@ -86,5 +92,5 @@ func (c *Collection) Label() string {
 }
 
 func IsCollectionFile(filename string) bool {
-	return strings.HasSuffix(filename, POSTMAN_COLLECTION_SUFFIX)
+	return strings.HasSuffix(filename, PostmanCollectionSuffix)
 }

@@ -207,7 +207,6 @@ func (tw *TreeWidget) MoveUp() {
 	var nextItem *treeNode
 	prevSib := tw.selectedNode.prevSibling()
 	if prevSib != nil {
-		tw.Logger.Printf("Prev sib is %q, check for LED", prevSib.label)
 		nextItem = prevSib.lastExpandedDescendant()
 	} else if tw.selectedNode.parent != nil {
 		if tw.selectedNode.parent.expanded {
@@ -225,31 +224,27 @@ func (tw *TreeWidget) MoveUp() {
 		nextItem.selected = true
 		tw.selectedNode = nextItem
 		tw.selectedRow--
-		tw.Logger.Printf("MoveUp: selected for now %d\n", tw.selectedRow)
+		// tw.Logger.Printf("MoveUp: selected for now %d\n", tw.selectedRow)
 	}
 }
 
 func (tw *TreeWidget) MoveDown() {
-	// l := tw.Logger
 	var nextNode *treeNode
 	if tw.selectedNode == nil {
 		tw.Logger.Println("Cannot move: no current selection")
 		return
 	}
-	// l.Println("MoveDown: Current Selection is ", tw.selectedNode.label)
 	if tw.selectedNode.expanded && len(tw.selectedNode.children) > 0 {
-		// l.Println("expanding with children, so selecting the first child")
 		nextNode = tw.selectedNode.children[0]
 	} else {
 		nextNode = tw.selectedNode.nextRelative()
 	}
 	if nextNode != nil {
-		// l.Println("Setting next item to ", nextNode.label)
+		// tw.Logger.Println("Setting next item to ", nextNode.label)
 		tw.selectedNode.selected = false
 		nextNode.selected = true
 		tw.selectedNode = nextNode
 		tw.selectedRow++
-		// l.Printf("MoveDown: selected for now %d\n", tw.selectedRow)
 	}
 }
 
@@ -295,8 +290,8 @@ func (tw *TreeWidget) SelectLast() {
 	*/
 }
 
-func (tw *TreeWidget) SetGroups(gps []*gpmodel.Group) {
-	tw.Logger.Println("TreeWidget.SetGroups: load", len(gps))
+func (tw *TreeWidget) SetRequestGroups(gps []*gpmodel.RequestGroup) {
+	tw.Logger.Println("TreeWidget.SetRequestGroups: load", len(gps))
 	if len(gps) < 1 {
 		return
 	}
@@ -315,7 +310,7 @@ func (tw *TreeWidget) SetGroups(gps []*gpmodel.Group) {
 	tw.selectedRow = 0
 }
 
-func group2node(group *gpmodel.Group) *treeNode {
+func group2node(group *gpmodel.RequestGroup) *treeNode {
 	n := treeNode{}
 	n.label = group.Name
 	n.children = make([]*treeNode, len(group.Children)+len(group.Requests))

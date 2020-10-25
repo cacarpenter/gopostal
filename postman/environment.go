@@ -2,12 +2,13 @@ package postman
 
 import (
 	"encoding/json"
+	"github.com/cacarpenter/gopostal/gpmodel"
 	"io/ioutil"
 	"strings"
 	"time"
 )
 
-const POSTMAN_ENV_SUFFIX = ".postman_environment.json"
+const PostmanEnvSuffix = ".postman_environment.json"
 
 type Environment struct {
 	Id                   string    `json:"id"`
@@ -24,20 +25,29 @@ type EnvVal struct {
 	Enabled bool   `json:"enabled"`
 }
 
-func ParseEnv(filename string) (*Environment, error) {
+func ParseEnvironment(filename string) (*gpmodel.VarGroup, error) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	var e Environment
-	err = json.Unmarshal(data, &e)
+	var pmEnv Environment
+	err = json.Unmarshal(data, &pmEnv)
 	if err != nil {
 		return nil, err
 	}
-	return &e, nil
+
+	vg := gpmodel.VarGroup{}
+	vg.Name = pmEnv.Name
+	vg.SourceFilename = filename
+	vars := make(map[string]string, len(pmEnv.Values))
+	for _, pmEnvVar := range pmEnv.Values {
+		vars[pmEnvVar.Key] = pmEnvVar.Value
+	}
+
+	vg.Variables = vars
+	return &vg, nil
 }
 
 func IsEnvironmentFile(filename string) bool {
-	return strings.HasSuffix(filename, POSTMAN_ENV_SUFFIX)
+	return strings.HasSuffix(filename, PostmanEnvSuffix)
 }
-
