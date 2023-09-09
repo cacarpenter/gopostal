@@ -37,3 +37,7 @@ func (rw *RequestWidget) Layout(v *gocui.View) {
 	fmt.Fprintln(v, r.PostScript.Text)
 	fmt.Fprintln(v, colorReset)
 }
+
+func (rw *RequestWidget) UpdateVars() {
+
+}

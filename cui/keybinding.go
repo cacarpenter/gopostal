@@ -68,6 +68,10 @@ func (ui *ConsoleUI) keybindings(g *gocui.Gui) error {
 		}
 	*/
 
+	if err := g.SetKeybinding("", gocui.KeyF2, gocui.ModNone, ui.SaveCollection); err != nil {
+		log.Panicln(err)
+	}
+
 	return nil
 }
 

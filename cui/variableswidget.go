@@ -7,7 +7,10 @@ import (
 )
 
 type VariablesWidget struct {
-	vars [][]string
+	vars               [][]string
+	editMode           bool
+	selectedRow        int
+	selectedValueOrKey bool
 }
 
 func (vw *VariablesWidget) Layout(view *gocui.View) {
@@ -15,7 +18,17 @@ func (vw *VariablesWidget) Layout(view *gocui.View) {
 	table.SetHeader([]string{"Name", "Value"})
 	table.SetBorder(false)
 
-	table.AppendBulk(vw.vars)
+	if vw.editMode {
+		rows := make([]string, 1)
+		rows[0] = "R1"
+		colors := make([]tablewriter.Colors, 1)
+		colors[0] = tablewriter.Colors{}
+
+		table.Rich(rows, colors)
+	} else {
+		table.AppendBulk(vw.vars)
+	}
+
 	table.Render()
 }
 

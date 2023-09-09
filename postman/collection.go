@@ -44,6 +44,21 @@ func ParseCollection(filename string) (*gpmodel.RequestGroup, error) {
 	return resultGroup, nil
 }
 
+func WriteCollection(filename string, group *gpmodel.RequestGroup) error {
+	pmColl := convertRequestGroup(group)
+
+	data, err := json.Marshal(pmColl)
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(filename, data, 0644)
+}
+
+func convertRequestGroup(reqGroup *gpmodel.RequestGroup) *Collection {
+
+}
+
 
 func wireCollection(parent *gpmodel.RequestGroup, pc *Collection) *gpmodel.RequestGroup {
 	if pc.Request != nil {

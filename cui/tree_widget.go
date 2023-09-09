@@ -224,7 +224,9 @@ func (tw *TreeWidget) MoveUp() {
 		nextItem.selected = true
 		tw.selectedNode = nextItem
 		tw.selectedRow--
-		// tw.Logger.Printf("MoveUp: selected for now %d\n", tw.selectedRow)
+		tw.Logger.Printf("MoveUp: selected for now %d\n", tw.selectedRow)
+	} else {
+		tw.Logger.Println("MoveUp: no next")
 	}
 }
 

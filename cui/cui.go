@@ -3,10 +3,12 @@ package cui
 import (
 	"fmt"
 	"github.com/cacarpenter/gopostal/gpmodel"
+	"github.com/cacarpenter/gopostal/postman"
 	"github.com/cacarpenter/gopostal/util"
 	"github.com/jroimartin/gocui"
 	"io"
 	"log"
+	"os"
 )
 
 const (
@@ -226,6 +228,13 @@ func (ui *ConsoleUI) ArrowRight(g *gocui.Gui, v *gocui.View) error {
 func (ui *ConsoleUI) ToggleVariablesModal(g *gocui.Gui, v *gocui.View) error {
 	ui.modalVisible = !ui.modalVisible
 	g.SetCurrentView(treeViewName)
+	return nil
+}
+
+func (ui *ConsoleUI) SaveCollection(g *gocui.Gui, v *gocui.View) error {
+	collFilename := os.TempDir() + "/out.postman_collection.json"
+	grp := gpmodel.RequestGroup{}
+    postman.WriteCollection(collFilename, &grp)
 	return nil
 }
 
